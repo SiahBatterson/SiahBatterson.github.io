@@ -53,13 +53,13 @@ async function fetchData() {
       "https://raw.githubusercontent.com/SiahBatterson/SiahBatterson.github.io/main/data.json"
     );
 
+    console.log("Raw Response:", response); // Log full response
+
     if (!response.ok)
       throw new Error(`Failed to fetch data. Status: ${response.status}`);
 
-    const data = await response.json();
-
-    // Log the data fetched for debugging
-    console.log("Fetched data:", data);
+    const data = await response.json(); // Parse JSON
+    console.log("Fetched Data:", data); // Log fetched JSON
 
     dataDisplay.innerHTML = data
       .map((entry) => `<p>${entry.name}: ${entry.score}</p>`)
