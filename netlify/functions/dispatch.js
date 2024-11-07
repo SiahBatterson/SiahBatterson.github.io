@@ -1,68 +1,63 @@
 const fetch = require("node-fetch");
 
 exports.handler = async (event) => {
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const REPO = "<YOUR-USERNAME>/<REPO>";
-  const FILE_PATH = "data.json"; // Path to your JSON file in the repo
-  const BRANCH = "main"; // Or whichever branch you're using
-
   try {
+    console.log("Event body:", event.body);
+
     const { data } = JSON.parse(event.body);
 
-    // 1. Fetch the existing JSON file from GitHub
-    const fileResponse = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`,
+    const response = await fetch(
+      "https://api.github.com/repos/SiahBatterson/SiahBatterson.github.io/contents/data.json",
       {
+        method: "GET",
         headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
+          Authorization: `token ${process.env.GITHUB_TOKEN}`,
         },
       }
     );
 
-    if (!fileResponse.ok) {
-      throw new Error("Failed to fetch the existing JSON file.");
-    }
+    if (!response.ok)
+      throw new Error(`Failed to fetch data.json. Status: ${response.status}`);
 
-    const fileData = await fileResponse.json();
+    const fileData = await response.json();
     const content = JSON.parse(
       Buffer.from(fileData.content, "base64").toString("utf-8")
     );
 
-    // 2. Append new data
-    content.push(data);
+    content.push(data); // Add new data
 
-    // 3. Update the JSON file
     const updatedContent = Buffer.from(
       JSON.stringify(content, null, 2)
     ).toString("base64");
 
     const updateResponse = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
+      "https://api.github.com/repos/SiahBatterson/SiahBatterson.github.io/contents/data.json",
       {
         method: "PUT",
         headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
+          Authorization: `token ${process.env.GITHUB_TOKEN}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: "Update data.json via Netlify Function",
           content: updatedContent,
-          sha: fileData.sha, // Use the existing file's SHA to avoid conflicts
-          branch: BRANCH,
+          sha: fileData.sha, // Ensure correct SHA
         }),
       }
     );
 
-    if (!updateResponse.ok) {
-      throw new Error("Failed to update the JSON file.");
-    }
+    if (!updateResponse.ok)
+      throw new Error(
+        `Failed to update data.json. Status: ${updateResponse.status}`
+      );
 
+    console.log("Data successfully updated.");
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "Success" }),
+      body: JSON.stringify({ message: "Data submitted successfully" }),
     };
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Function error:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: error.message }),

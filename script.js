@@ -47,23 +47,27 @@ dataForm.addEventListener("submit", async function (event) {
   }
 });
 
-// Function to fetch and display data
 async function fetchData() {
   try {
     const response = await fetch(
       "https://raw.githubusercontent.com/SiahBatterson/SiahBatterson.github.io/main/data.json"
     );
 
-    if (!response.ok) throw new Error("Failed to fetch data.");
+    if (!response.ok)
+      throw new Error(`Failed to fetch data. Status: ${response.status}`);
 
     const data = await response.json();
+
+    // Log the data fetched for debugging
+    console.log("Fetched data:", data);
 
     dataDisplay.innerHTML = data
       .map((entry) => `<p>${entry.name}: ${entry.score}</p>`)
       .join("");
   } catch (error) {
     console.error("Error fetching data:", error);
-    dataDisplay.innerHTML = "<p>Failed to load data.</p>";
+    dataDisplay.innerHTML =
+      "<p>Failed to load data. Check the console for more details.</p>";
   }
 }
 
