@@ -1,8 +1,4 @@
-// script.js
-
 // Reference page elements
-const titleOfPage = document.getElementById("title");
-const inputDataField = document.getElementById("data-input");
 const dataForm = document.getElementById("dataForm");
 const dataDisplay = document.getElementById("dataDisplay");
 
@@ -11,7 +7,12 @@ dataForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
   const name = document.getElementById("nameInput").value;
-  const score = document.getElementById("scoreInput").value;
+  const score = Number(document.getElementById("scoreInput").value); // Ensure score is a number
+
+  if (!name || isNaN(score)) {
+    alert("Please provide valid name and score.");
+    return;
+  }
 
   const data = { name, score };
 
@@ -30,14 +31,9 @@ dataForm.addEventListener("submit", async function (event) {
       }
     );
 
-    // Log response details for debugging
-    const responseText = await response.text();
-    console.log("Response Status:", response.status);
-    console.log("Response Text:", responseText);
-
     if (response.ok) {
       alert("Data submitted successfully!");
-      fetchData(); // Refresh data display after successful submission
+      fetchData(); // Refresh top scores after submission
     } else {
       alert("Failed to submit data: " + response.statusText);
     }
@@ -47,21 +43,30 @@ dataForm.addEventListener("submit", async function (event) {
   }
 });
 
+// Function to fetch and display top 3 scores
 async function fetchData() {
   try {
     const response = await fetch(
       "https://raw.githubusercontent.com/SiahBatterson/SiahBatterson.github.io/main/data.json"
     );
 
-    console.log("Raw Response:", response); // Log full response
-
     if (!response.ok)
       throw new Error(`Failed to fetch data. Status: ${response.status}`);
 
-    const data = await response.json(); // Parse JSON
-    console.log("Fetched Data:", data); // Log fetched JSON
+    const data = await response.json();
 
-    dataDisplay.innerHTML = data
+    // Filter out invalid entries and sort by score in descending order
+    const validData = data.filter(
+      (entry) => entry && entry.name && typeof entry.score === "number"
+    );
+
+    const topScores = validData
+      .sort((a, b) => b.score - a.score) // Descending order by score
+      .slice(0, 3); // Take top 3 scores
+
+    console.log("Top 3 Scores:", topScores);
+
+    dataDisplay.innerHTML = topScores
       .map((entry) => `<p>${entry.name}: ${entry.score}</p>`)
       .join("");
   } catch (error) {
