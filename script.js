@@ -55,14 +55,15 @@ async function fetchData() {
 
     const data = await response.json();
 
-    // Filter out invalid entries and sort by score in descending order
-    const validData = data.filter(
-      (entry) => entry && entry.name && typeof entry.score === "number"
-    );
+    // Filter valid entries and ensure scores are numbers
+    const validData = data
+      .filter((entry) => entry && entry.name && !isNaN(entry.score)) // Validates entries
+      .map((entry) => ({ ...entry, score: Number(entry.score) })); // Converts score to number
 
+    // Sort by score in descending order and take the top 3
     const topScores = validData
-      .sort((a, b) => b.score - a.score) // Descending order by score
-      .slice(0, 3); // Take top 3 scores
+      .sort((a, b) => b.score - a.score) // Numeric descending order
+      .slice(0, 3); // Get top 3 scores
 
     console.log("Top 3 Scores:", topScores);
 
