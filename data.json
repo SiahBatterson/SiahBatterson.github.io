@@ -11,5 +11,9 @@
     "name": "Charlie",
     "score": 78
   },
-  null
+  null,
+  {
+    "name": "Maya",
+    "score": "123"
+  }
 ]
