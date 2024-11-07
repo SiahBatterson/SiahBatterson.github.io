@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+import fetch from "node-fetch"; // Use ESM import
 
 exports.handler = async (event) => {
   try {
