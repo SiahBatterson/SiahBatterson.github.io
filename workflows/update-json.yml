@@ -1,0 +1,32 @@
+name: Update JSON File
+
+on:
+  repository_dispatch:
+    types: [update-json]
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git credentials
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Update JSON file
+        run: |
+          echo "Updating data.json"
+          data=$(jq ". + [{\"name\": \"${{ github.event.client_payload.data.name }}\", \"score\": ${{ github.event.client_payload.data.score }} }]" data.json)
+          echo "$data" > data.json
+
+      - name: Commit and push changes
+        env:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          git add data.json
+          git commit -m "Update data.json via GitHub Actions"
+          git push https://$TOKEN@github.com/${{ github.repository }}.git
