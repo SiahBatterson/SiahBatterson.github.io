@@ -1,36 +1,23 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Storage</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Netlify Functions Demo</title>
   </head>
   <body>
-    <h1 id="title">Testing</h1>
-    <div id="data-storage">
-      <input type="text" id="data-input" placeholder="Enter Data Here" />
-    </div>
+    <h1 id="title">Submit Data</h1>
+
+    <form id="dataForm">
+      <input type="text" id="nameInput" placeholder="Enter name" required />
+      <input type="number" id="scoreInput" placeholder="Enter score" required />
+      <button type="submit">Submit</button>
+    </form>
+
+    <h2>Submitted Data:</h2>
     <div id="dataDisplay"></div>
 
-    <script>
-      async function fetchData() {
-        try {
-          const response = await fetch(
-            "https://raw.githubusercontent.com/<YOUR-USERNAME>/<REPO>/main/data.json"
-          );
-          const data = await response.json();
-
-          const display = document.getElementById("dataDisplay");
-          display.innerHTML = data
-            .map((entry) => `<p>${entry.name}: ${entry.score}</p>`)
-            .join("");
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      }
-
-      // Fetch and display data when the page loads
-      fetchData();
-    </script>
+    <!-- Link external script -->
+    <script src="script.js"></script>
   </body>
 </html>

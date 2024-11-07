@@ -1,36 +1,68 @@
 const fetch = require("node-fetch");
 
 exports.handler = async (event) => {
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  const REPO = "<YOUR-USERNAME>/<REPO>";
+  const FILE_PATH = "data.json"; // Path to your JSON file in the repo
+  const BRANCH = "main"; // Or whichever branch you're using
+
   try {
     const { data } = JSON.parse(event.body);
 
-    const response = await fetch(
-      "https://api.github.com/repos/<YOUR-USERNAME>/<REPO>/dispatches",
+    // 1. Fetch the existing JSON file from GitHub
+    const fileResponse = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`,
       {
-        method: "POST",
         headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+        },
+      }
+    );
+
+    if (!fileResponse.ok) {
+      throw new Error("Failed to fetch the existing JSON file.");
+    }
+
+    const fileData = await fileResponse.json();
+    const content = JSON.parse(
+      Buffer.from(fileData.content, "base64").toString("utf-8")
+    );
+
+    // 2. Append new data
+    content.push(data);
+
+    // 3. Update the JSON file
+    const updatedContent = Buffer.from(
+      JSON.stringify(content, null, 2)
+    ).toString("base64");
+
+    const updateResponse = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
           "Content-Type": "application/json",
-          Authorization: `token ${process.env.GITHUB_TOKEN}`, // Secure token via env variables
         },
         body: JSON.stringify({
-          event_type: "update-json",
-          client_payload: { data },
+          message: "Update data.json via Netlify Function",
+          content: updatedContent,
+          sha: fileData.sha, // Use the existing file's SHA to avoid conflicts
+          branch: BRANCH,
         }),
       }
     );
 
-    if (response.ok) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: "Success" }),
-      };
-    } else {
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({ error: response.statusText }),
-      };
+    if (!updateResponse.ok) {
+      throw new Error("Failed to update the JSON file.");
     }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "Success" }),
+    };
   } catch (error) {
+    console.error("Error:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: error.message }),
