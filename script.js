@@ -24,22 +24,26 @@ dataForm.addEventListener("submit", async function (event) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          event_type: "update-json", // Custom event for GitHub Actions
+          event_type: "update-json", // GitHub Actions event
           client_payload: { data },
         }),
       }
     );
 
+    // Log response details for debugging
+    const responseText = await response.text();
+    console.log("Response Status:", response.status);
+    console.log("Response Text:", responseText);
+
     if (response.ok) {
       alert("Data submitted successfully!");
-      fetchData(); // Refresh the data display after successful submission
+      fetchData(); // Refresh data display after successful submission
     } else {
-      console.error("Error:", response.statusText);
-      alert("Failed to submit data.");
+      alert("Failed to submit data: " + response.statusText);
     }
   } catch (error) {
-    console.error("Error:", error);
-    alert("An error occurred while submitting data.");
+    console.error("Error submitting data:", error);
+    alert("Error submitting data: " + error.message);
   }
 });
 
