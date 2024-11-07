@@ -1,5 +1,3 @@
-const fetch = require("node-fetch");
-
 exports.handler = async (event) => {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const REPO = "SiahBatterson/SiahBatterson.github.io";
@@ -7,11 +5,19 @@ exports.handler = async (event) => {
   const BRANCH = "main";
 
   try {
-    console.log("Received event:", event.body);
+    console.log("Event body:", event.body); // Log incoming data for debugging
 
-    const { data } = JSON.parse(event.body);
+    const parsedBody = JSON.parse(event.body);
 
-    // Step 1: Fetch current data.json
+    // Ensure client_payload is valid
+    const { client_payload } = parsedBody;
+    if (!client_payload || !client_payload.data) {
+      throw new Error("Invalid payload structure. Data not found.");
+    }
+
+    const { data } = client_payload;
+
+    // Fetch existing data.json
     const fileResponse = await fetch(
       `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`,
       {
@@ -32,13 +38,14 @@ exports.handler = async (event) => {
       Buffer.from(fileData.content, "base64").toString("utf-8")
     );
 
-    content.push(data); // Append new data
+    // Append new data
+    content.push(data);
 
     const updatedContent = Buffer.from(
       JSON.stringify(content, null, 2)
     ).toString("base64");
 
-    // Step 3: Update data.json
+    // Update data.json
     const updateResponse = await fetch(
       `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
       {
@@ -61,7 +68,7 @@ exports.handler = async (event) => {
       );
     }
 
-    console.log("Data successfully updated.");
+    console.log("Data successfully updated on GitHub.");
     return {
       statusCode: 200,
       body: JSON.stringify({ message: "Data submitted successfully" }),
