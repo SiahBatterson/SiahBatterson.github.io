@@ -390,7 +390,7 @@ function showLevelCompleteMenu() {
 
   document.getElementById("returnHome").addEventListener("click", () => {
     savePlayerData(localStorage.getItem("playerName"), player.coins, levels);
-    window.location.href = "index.html"; // Redirect to leaderboard
+    window.location.href = "../index.html"; // Redirect to leaderboard
   });
 
   document.getElementById("nextLevel").addEventListener("click", () => {
