@@ -7,11 +7,32 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1>Welcome to the Game</h1>
+    <h1>Welcome to the Game, enter your name to begin!</h1>
+
+    <!-- Name Input Form -->
+    <form id="nameForm">
+      <label for="playerName">Enter your name:</label>
+      <input type="text" id="playerName" required />
+      <button type="submit">Start Game</button>
+    </form>
+
     <h2>Leaderboard</h2>
     <div id="leaderboard"></div>
 
     <script>
+      // Store player name in localStorage
+      document
+        .getElementById("nameForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent page reload
+
+          const playerName = document.getElementById("playerName").value;
+          if (playerName) {
+            localStorage.setItem("playerName", playerName); // Save player name
+            window.location.href = "scriptgame.html"; // Redirect to the game page
+          }
+        });
+
       async function fetchLeaderboard() {
         try {
           const response = await fetch("./data.json"); // Fetch from the data.json file
