@@ -6,6 +6,7 @@ canvas_id.width = 1280;
 canvas_id.height = 720;
 const name = localStorage.getItem("playerName");
 let gamerunning = true;
+let levels = 1;
 
 let timer = {
   startTime: null, // Record the time when the level starts
@@ -376,6 +377,7 @@ async function savePlayerData(name, coins, levels) {
 
 function showLevelCompleteMenu() {
   gamerunning = false;
+  levels += 1;
   const menu = document.createElement("div");
   menu.id = "levelCompleteMenu";
   menu.innerHTML = `
