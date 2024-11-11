@@ -5,7 +5,11 @@ const ctx = canvas_id.getContext("2d");
 canvas_id.width = 1280;
 canvas_id.height = 720;
 
-// Player object
+let timer = {
+  startTime: null, // Record the time when the level starts
+  currentTime: 0, // Time elapsed in seconds
+};
+
 let player = {
   x: 0,
   y: 0,
@@ -18,6 +22,8 @@ let player = {
   gravity: 0.9,
   grounded: false,
   coins: 0,
+  onWall: false, // New: to detect wall contact
+  wallJumpDirection: 0, // New: -1 for left wall, 1 for right wall
 };
 
 // Door object
@@ -76,6 +82,12 @@ function generateRandomMap() {
             map[y + 1][x] = "#";
             map[y][x + 1] = "#";
             map[y + 1][x + 1] = "#";
+            break;
+          case 4: // 2x2 platform
+            map[y][x] = "#";
+            map[y - 1][x] = "#";
+            map[y - 2][x] = "#";
+            map[y - 2][x - 1] = "#";
             break;
         }
       } else if (
@@ -164,6 +176,10 @@ window.addEventListener("keydown", (e) => {
   if (e.code === "Space" && player.grounded) {
     player.velocityY = -player.jumpStrength;
     player.grounded = false;
+  } else if (e.code === "Space" && player.onWall) {
+    // Wall jump logic
+    player.velocityY = -player.jumpStrength * 1.2; // Slightly weaker than a normal jump
+    player.onWall = false; // Reset wall status after jump
   }
   if (e.key === "a") keys.a = true;
   if (e.key === "d") keys.d = true;
@@ -184,8 +200,10 @@ function checkCollision(player, platform) {
   );
 }
 
-// Resolve collisions
 function resolveCollisions() {
+  player.grounded = false;
+  player.onWall = false;
+
   platforms.forEach((platform) => {
     if (checkCollision(player, platform)) {
       const dx1 = platform.x - (player.x + player.width); // Distance to platform's left
@@ -213,10 +231,14 @@ function resolveCollisions() {
         // Right wall collision
         player.x = platform.x - player.width;
         player.velocityX = 0;
+        player.onWall = true;
+        player.wallJumpDirection = 1;
       } else if (minDist === Math.abs(dx2) && player.velocityX < 0) {
         // Left wall collision
         player.x = platform.x + platform.width;
         player.velocityX = 0;
+        player.onWall = true;
+        player.wallJumpDirection = -1;
       }
     }
   });
@@ -231,9 +253,13 @@ function checkCoinCollision(player, coin) {
   );
 }
 
-// Update and render loop
 function update() {
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
+
+  // Update the timer
+  if (timer.startTime) {
+    timer.currentTime = ((Date.now() - timer.startTime) / 1000).toFixed(2); // Update elapsed time
+  }
 
   player.velocityY += player.gravity;
 
@@ -264,9 +290,11 @@ function update() {
     player.y + player.height > door.y
   ) {
     if (coins.length < 1) {
-      alert("Level Completed! 100%");
+      alert(
+        `Level Completed! 100% in ${timer.currentTime} seconds with 100% of coins!`
+      );
     } else {
-      alert("Level Completed!");
+      alert(`Level Completed in ${timer.currentTime} seconds.`);
     }
     resetGame();
   }
@@ -292,14 +320,10 @@ function update() {
     );
   });
 
+  // Draw coins
   ctx.fillStyle = "gold";
-  coins.forEach((coins) => {
-    ctx.fillRect(
-      coins.x - camera.x,
-      coins.y - camera.y,
-      coins.width,
-      coins.height
-    );
+  coins.forEach((coin) => {
+    ctx.fillRect(coin.x - camera.x, coin.y - camera.y, coin.width, coin.height);
   });
 
   // Draw the player
@@ -311,8 +335,12 @@ function update() {
     player.height
   );
 
+  // Display the timer
   ctx.fillStyle = "black";
   ctx.font = "20px Arial";
+  ctx.fillText(`Time: ${timer.currentTime}s`, 10, 60);
+
+  // Display the coin count
   ctx.fillText(`Coins: ${player.coins}`, 10, 30);
 
   // Draw the door
@@ -324,11 +352,16 @@ function update() {
 
 // Reset game
 function resetGame() {
+  timer.startTime = Date.now(); // Record the start time
+  player.coins = 0; // Reset coin count
+  coins = []; // Reset coin array
+  platforms = []; // Reset platforms
   const newMap = generateRandomMap();
   parseMap(newMap);
 }
 
 // Initialize
 const initialMap = generateRandomMap();
+timer.startTime = Date.now();
 parseMap(initialMap);
 update();
