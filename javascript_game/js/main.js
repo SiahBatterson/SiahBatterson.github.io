@@ -37,19 +37,16 @@ let camera = {
   height: canvas_id.height,
 };
 
-// Generate a random ASCII map with bias
+// Generate a random ASCII map with a reserved 3x3 grid for the player
 function generateRandomMap() {
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
   // Introduce bias for platform placement
   for (let y = 2; y < rows - 1; y++) {
-    // Avoid first row for platforms
     for (let x = 1; x < cols - 1; x++) {
       if (Math.random() < 0.2 + y * 0.02) {
-        // Higher probability for lower rows
         map[y][x] = "#";
 
-        // Add some connectivity bias
         if (Math.random() < 0.3) {
           map[y][x - 1] = "#";
           map[y][x + 1] = "#";
@@ -63,14 +60,26 @@ function generateRandomMap() {
     map[rows - 1][x] = "#";
   }
 
-  // Place the player start point
-  map[rows - 2][1] = "P";
+  // Reserve a 3x3 area for the player spawn (excluding ground beneath)
+  const spawnX = 2; // Starting column for 3x3 grid
+  const spawnY = rows - 4; // Start row for 3x3 grid (just above the ground)
+  for (let y = spawnY; y < spawnY + 3; y++) {
+    for (let x = spawnX; x < spawnX + 3; x++) {
+      if (y < rows - 1) {
+        // Avoid removing ground in the last row
+        map[y][x] = ".";
+      }
+    }
+  }
+
+  // Place the player start point in the center of the reserved 3x3 area
+  map[spawnY + 1][spawnX + 1] = "P";
 
   // Place the door on an accessible platform
   let placed = false;
   while (!placed) {
     const x = Math.floor(Math.random() * cols);
-    const y = Math.floor(Math.random() * (rows - 2)); // Avoid last row for door
+    const y = Math.floor(Math.random() * (rows - 2));
     if (map[y][x] === "#") {
       map[y - 1][x] = "@";
       placed = true;
