@@ -1,3 +1,35 @@
+const canvas_id = document.getElementById("canvas");
+const ctx = canvas_id.getContext("2d");
+
+// Set canvas size
+canvas_id.width = 1280;
+canvas_id.height = 720;
+
+// Player object
+let player = {
+  x: 0,
+  y: 0,
+  width: 50,
+  height: 50,
+  speed: 5,
+  velocityY: 0,
+  jumpStrength: 15,
+  gravity: 0.8,
+  grounded: false,
+};
+
+// Door object
+let door = null;
+
+// Tile and level settings
+const tileSize = 50;
+const rows = 20; // Increase rows for larger levels
+const cols = 32; // Increase cols for larger levels
+
+// Platforms array
+let platforms = [];
+
+// Camera setup
 let camera = {
   x: 0,
   y: 0,
@@ -5,6 +37,89 @@ let camera = {
   height: canvas_id.height,
 };
 
+// Generate a random ASCII map
+function generateRandomMap() {
+  let map = Array.from({ length: rows }, () => Array(cols).fill("."));
+
+  // Randomly place platforms
+  for (let i = 0; i < rows * cols * 0.2; i++) {
+    // Adjust density
+    const x = Math.floor(Math.random() * cols);
+    const y = Math.floor(Math.random() * rows);
+    map[y][x] = "#";
+  }
+
+  // Ensure ground on the last row
+  for (let x = 0; x < cols; x++) {
+    map[rows - 1][x] = "#";
+  }
+
+  // Place the player start point
+  map[rows - 2][1] = "P"; // Starting position near the bottom left
+
+  // Place the door on an accessible platform
+  let placed = false;
+  while (!placed) {
+    const x = Math.floor(Math.random() * cols);
+    const y = Math.floor(Math.random() * rows);
+    if (map[y][x] === "#" && y < rows - 1) {
+      map[y - 1][x] = "@"; // Place door on a platform
+      placed = true;
+    }
+  }
+
+  return map.map((row) => row.join("")).join("\n");
+}
+
+// Parse the ASCII map
+function parseMap(map) {
+  platforms = [];
+  const rows = map.trim().split("\n");
+  rows.forEach((row, y) => {
+    [...row].forEach((char, x) => {
+      if (char === "#") {
+        platforms.push({
+          x: x * tileSize,
+          y: y * tileSize,
+          width: tileSize,
+          height: tileSize,
+        });
+      } else if (char === "P") {
+        player.x = x * tileSize;
+        player.y = y * tileSize;
+      } else if (char === "@") {
+        door = {
+          x: x * tileSize,
+          y: y * tileSize,
+          width: tileSize,
+          height: tileSize,
+        };
+      }
+    });
+  });
+}
+
+// Input tracking
+let keys = {
+  a: false,
+  d: false,
+};
+
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && player.grounded) {
+    player.velocityY = -player.jumpStrength;
+    player.grounded = false;
+  }
+  if (e.key === "a") keys.a = true;
+  if (e.key === "d") keys.d = true;
+});
+
+window.addEventListener("keyup", (e) => {
+  if (e.key === "a") keys.a = false;
+  if (e.key === "d") keys.d = false;
+});
+
+// Update and render loop
 function update() {
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
 
@@ -44,11 +159,6 @@ function update() {
     resetGame();
   }
 
-  // Prevent player from moving out of bounds
-  if (player.x < 0) player.x = 0;
-  if (player.x + player.width > cols * tileSize)
-    player.x = cols * tileSize - player.width;
-
   // Camera logic
   camera.x = Math.max(
     0,
@@ -85,3 +195,14 @@ function update() {
 
   requestAnimationFrame(update);
 }
+
+// Reset the game
+function resetGame() {
+  const newMap = generateRandomMap();
+  parseMap(newMap);
+}
+
+// Initialize
+const initialMap = generateRandomMap();
+parseMap(initialMap);
+update();
