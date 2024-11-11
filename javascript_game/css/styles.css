@@ -4,10 +4,9 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #222; /* Optional background color */
   overflow: hidden;
 }
 
 canvas {
-  border: 2px solid white; /* Optional border for visibility */
+  border: 2px solid bisque; /* Optional border for visibility */
 }
