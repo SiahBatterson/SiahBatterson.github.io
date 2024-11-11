@@ -12,6 +12,7 @@ let player = {
   width: 50,
   height: 50,
   speed: 5,
+  velocityX: 0,
   velocityY: 0,
   jumpStrength: 15,
   gravity: 0.8,
@@ -23,7 +24,7 @@ let door = null;
 
 // Tile and level settings
 const tileSize = 50;
-const rows = 20; // Larger level size
+const rows = 20;
 const cols = 32;
 
 // Platforms array
@@ -60,13 +61,12 @@ function generateRandomMap() {
     map[rows - 1][x] = "#";
   }
 
-  // Reserve a 3x3 area for the player spawn (excluding ground beneath)
-  const spawnX = 2; // Starting column for 3x3 grid
-  const spawnY = rows - 4; // Start row for 3x3 grid (just above the ground)
+  // Reserve a 3x3 area for the player spawn
+  const spawnX = 2;
+  const spawnY = rows - 4;
   for (let y = spawnY; y < spawnY + 3; y++) {
     for (let x = spawnX; x < spawnX + 3; x++) {
       if (y < rows - 1) {
-        // Avoid removing ground in the last row
         map[y][x] = ".";
       }
     }
@@ -169,7 +169,7 @@ function checkCollision(player, platform) {
     playerLeft < platformRight
   ) {
     player.y = platformBottom;
-    player.velocityY = 0.5; // Prevent snapping
+    player.velocityY = 0.5;
   }
 
   // Left collision
@@ -201,9 +201,11 @@ function update() {
   player.velocityY += player.gravity;
   player.y += player.velocityY;
 
-  // Horizontal movement
-  if (keys.a) player.x -= player.speed;
-  if (keys.d) player.x += player.speed;
+  // Handle horizontal movement
+  player.velocityX = 0; // Reset horizontal velocity each frame
+  if (keys.a) player.velocityX = -player.speed;
+  if (keys.d) player.velocityX = player.speed;
+  player.x += player.velocityX;
 
   // Collision detection with platforms
   player.grounded = false;
