@@ -350,7 +350,7 @@ function resetGame() {
   platforms = []; // Reset platforms
   const newMap = generateRandomMap();
   parseMap(newMap);
-  gamerunning = true;
+  update();
 }
 
 async function savePlayerData(name, coins, levels) {
@@ -400,7 +400,7 @@ function showLevelCompleteMenu() {
 }
 
 function startNextLevel() {
-  player.score += 100; // Add bonus for completing the level (optional)
+  gamerunning = true; // Mark game as running
   resetGame(); // Restart the game for the next level
 }
 
