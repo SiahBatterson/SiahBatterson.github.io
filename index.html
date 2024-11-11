@@ -3,25 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Netlify Functions Demo</title>
+    <title>Leaderboard</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <nav>
-      <a href="/javascript_game/scriptgame.html">Game</a>
-    </nav>
-    <h1 id="title">Submit Data</h1>
+    <h1>Welcome to the Game</h1>
+    <h2>Leaderboard</h2>
+    <div id="leaderboard"></div>
 
-    <form id="dataForm">
-      <input type="text" id="nameInput" placeholder="Enter name" required />
-      <input type="number" id="scoreInput" placeholder="Enter score" required />
-      <button type="submit">Submit</button>
-    </form>
+    <script>
+      async function fetchLeaderboard() {
+        try {
+          const response = await fetch("./data.json"); // Fetch from the data.json file
+          const data = await response.json();
 
-    <h2>Submitted Data:</h2>
-    <div id="dataDisplay"></div>
+          // Sort and display top scores
+          const sortedData = data
+            .sort((a, b) => b.score - a.score) // Sort by score in descending order
+            .slice(0, 5); // Display top 5 players
 
-    <!-- Link external script -->
-    <script src="script.js"></script>
+          const leaderboard = document.getElementById("leaderboard");
+          leaderboard.innerHTML = sortedData
+            .map(
+              (entry) =>
+                `<p>${entry.name}: ${entry.score} (Levels: ${entry.levels})</p>`
+            )
+            .join("");
+        } catch (error) {
+          console.error("Failed to fetch leaderboard data:", error);
+          document.getElementById("leaderboard").innerHTML =
+            "<p>Failed to load leaderboard data.</p>";
+        }
+      }
+
+      // Fetch and display leaderboard on page load
+      window.onload = fetchLeaderboard;
+    </script>
   </body>
 </html>

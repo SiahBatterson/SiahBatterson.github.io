@@ -1,34 +1,7 @@
 [
   {
     "name": "Alice",
-    "score": 85
-  },
-  {
-    "name": "Bob",
-    "score": 90
-  },
-  {
-    "name": "Charlie",
-    "score": 78
-  },
-  {
-    "name": "Maya",
-    "score": 123
-  },
-  {
-    "name": "Tommy",
-    "score": 99
-  },
-  {
-    "name": "Tony",
-    "score": 88
-  },
-  {
-    "name": "Tommy",
-    "score": 555
-  },
-  {
-    "name": "gregroy",
-    "score": 5555
+    "coins": 85,
+    "levels": 1
   }
 ]

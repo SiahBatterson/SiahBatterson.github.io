@@ -4,6 +4,7 @@ const ctx = canvas_id.getContext("2d");
 // Set canvas size
 canvas_id.width = 1280;
 canvas_id.height = 720;
+const name = localStorage.getItem("playerName");
 
 let timer = {
   startTime: null, // Record the time when the level starts
@@ -283,21 +284,7 @@ function update() {
   resolveCollisions();
 
   // Check collision with door
-  if (
-    player.x < door.x + door.width &&
-    player.x + player.width > door.x &&
-    player.y < door.y + door.height &&
-    player.y + player.height > door.y
-  ) {
-    if (coins.length < 1) {
-      alert(
-        `Level Completed! 100% in ${timer.currentTime} seconds with 100% of coins!`
-      );
-    } else {
-      alert(`Level Completed in ${timer.currentTime} seconds.`);
-    }
-    resetGame();
-  }
+  checkLevelCompletion();
 
   // Camera logic
   camera.x = Math.max(
@@ -358,6 +345,90 @@ function resetGame() {
   platforms = []; // Reset platforms
   const newMap = generateRandomMap();
   parseMap(newMap);
+}
+
+async function savePlayerData(name, coins, levels) {
+  const playerData = { name, coins, levels };
+
+  try {
+    const response = await fetch("/data.json", {
+      method: "POST", // If your server supports it
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(playerData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to save data");
+    }
+
+    console.log("Data saved:", playerData);
+  } catch (error) {
+    console.error("Error saving player data:", error);
+  }
+}
+
+function showLevelCompleteMenu() {
+  const menu = document.createElement("div");
+  menu.id = "levelCompleteMenu";
+  menu.innerHTML = `
+      <h2>Level Completed!</h2>
+      <button id="returnHome">Return Home</button>
+      <button id="nextLevel">Next Level</button>
+    `;
+
+  document.body.appendChild(menu);
+
+  document.getElementById("returnHome").addEventListener("click", () => {
+    savePlayerData(
+      localStorage.getItem("playerName"),
+      player.score,
+      player.coins,
+      player.levels
+    );
+    window.location.href = "index.html"; // Redirect to leaderboard
+  });
+
+  document.getElementById("nextLevel").addEventListener("click", () => {
+    menu.remove(); // Remove menu
+    startNextLevel(); // Start the next level
+  });
+}
+
+function startNextLevel() {
+  player.levels += 1; // Increment level count
+  player.score += 100; // Add bonus for completing the level (optional)
+  resetGame(); // Restart the game for the next level
+}
+
+function savePlayerData(name, score, coins, levels) {
+  const playerData = { name, score, coins, levels };
+
+  fetch("./data.json", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(playerData),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("Failed to save player data");
+      console.log("Player data saved:", playerData);
+    })
+    .catch((error) => console.error("Error saving player data:", error));
+}
+
+// Trigger the menu on level completion
+function checkLevelCompletion() {
+  if (
+    player.x < door.x + door.width &&
+    player.x + player.width > door.x &&
+    player.y < door.y + door.height &&
+    player.y + player.height > door.y
+  ) {
+    showLevelCompleteMenu(); // Show level completion menu
+  }
 }
 
 // Initialize
