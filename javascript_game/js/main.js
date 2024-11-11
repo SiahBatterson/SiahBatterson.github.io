@@ -23,8 +23,8 @@ let door = null;
 
 // Tile and level settings
 const tileSize = 50;
-const rows = 20; // Increase rows for larger levels
-const cols = 32; // Increase cols for larger levels
+const rows = 20; // Larger level size
+const cols = 32;
 
 // Platforms array
 let platforms = [];
@@ -37,16 +37,25 @@ let camera = {
   height: canvas_id.height,
 };
 
-// Generate a random ASCII map
+// Generate a random ASCII map with bias
 function generateRandomMap() {
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
-  // Randomly place platforms
-  for (let i = 0; i < rows * cols * 0.2; i++) {
-    // Adjust density
-    const x = Math.floor(Math.random() * cols);
-    const y = Math.floor(Math.random() * rows);
-    map[y][x] = "#";
+  // Introduce bias for platform placement
+  for (let y = 2; y < rows - 1; y++) {
+    // Avoid first row for platforms
+    for (let x = 1; x < cols - 1; x++) {
+      if (Math.random() < 0.2 + y * 0.02) {
+        // Higher probability for lower rows
+        map[y][x] = "#";
+
+        // Add some connectivity bias
+        if (Math.random() < 0.3) {
+          map[y][x - 1] = "#";
+          map[y][x + 1] = "#";
+        }
+      }
+    }
   }
 
   // Ensure ground on the last row
@@ -55,15 +64,15 @@ function generateRandomMap() {
   }
 
   // Place the player start point
-  map[rows - 2][1] = "P"; // Starting position near the bottom left
+  map[rows - 2][1] = "P";
 
   // Place the door on an accessible platform
   let placed = false;
   while (!placed) {
     const x = Math.floor(Math.random() * cols);
-    const y = Math.floor(Math.random() * rows);
-    if (map[y][x] === "#" && y < rows - 1) {
-      map[y - 1][x] = "@"; // Place door on a platform
+    const y = Math.floor(Math.random() * (rows - 2)); // Avoid last row for door
+    if (map[y][x] === "#") {
+      map[y - 1][x] = "@";
       placed = true;
     }
   }
@@ -119,6 +128,62 @@ window.addEventListener("keyup", (e) => {
   if (e.key === "d") keys.d = false;
 });
 
+// Collision detection for all sides
+function checkCollision(player, platform) {
+  const playerBottom = player.y + player.height;
+  const playerTop = player.y;
+  const playerRight = player.x + player.width;
+  const playerLeft = player.x;
+
+  const platformBottom = platform.y + platform.height;
+  const platformTop = platform.y;
+  const platformRight = platform.x + platform.width;
+  const platformLeft = platform.x;
+
+  // Top collision
+  if (
+    playerBottom > platformTop &&
+    playerTop < platformTop &&
+    playerRight > platformLeft &&
+    playerLeft < platformRight
+  ) {
+    player.y = platformTop - player.height;
+    player.velocityY = 0;
+    player.grounded = true;
+  }
+
+  // Bottom collision
+  if (
+    playerTop < platformBottom &&
+    playerBottom > platformBottom &&
+    playerRight > platformLeft &&
+    playerLeft < platformRight
+  ) {
+    player.y = platformBottom;
+    player.velocityY = 0.5; // Prevent snapping
+  }
+
+  // Left collision
+  if (
+    playerRight > platformLeft &&
+    playerLeft < platformLeft &&
+    playerBottom > platformTop &&
+    playerTop < platformBottom
+  ) {
+    player.x = platformLeft - player.width;
+  }
+
+  // Right collision
+  if (
+    playerLeft < platformRight &&
+    playerRight > platformRight &&
+    playerBottom > platformTop &&
+    playerTop < platformBottom
+  ) {
+    player.x = platformRight;
+  }
+}
+
 // Update and render loop
 function update() {
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
@@ -134,18 +199,7 @@ function update() {
   // Collision detection with platforms
   player.grounded = false;
   platforms.forEach((platform) => {
-    if (
-      player.x < platform.x + platform.width &&
-      player.x + player.width > platform.x &&
-      player.y < platform.y + platform.height &&
-      player.y + player.height > platform.y
-    ) {
-      if (player.velocityY > 0) {
-        player.y = platform.y - player.height;
-        player.velocityY = 0;
-        player.grounded = true;
-      }
-    }
+    checkCollision(player, platform);
   });
 
   // Check collision with door
