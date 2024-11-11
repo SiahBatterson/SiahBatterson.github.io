@@ -5,6 +5,7 @@ const ctx = canvas_id.getContext("2d");
 canvas_id.width = 1280;
 canvas_id.height = 720;
 const name = localStorage.getItem("playerName");
+let gamerunning = true;
 
 let timer = {
   startTime: null, // Record the time when the level starts
@@ -255,6 +256,9 @@ function checkCoinCollision(player, coin) {
 }
 
 function update() {
+  if (!gamerunning) {
+    return;
+  }
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
 
   // Update the timer
@@ -345,6 +349,7 @@ function resetGame() {
   platforms = []; // Reset platforms
   const newMap = generateRandomMap();
   parseMap(newMap);
+  gamerunning = true;
 }
 
 async function savePlayerData(name, coins, levels) {
@@ -370,6 +375,7 @@ async function savePlayerData(name, coins, levels) {
 }
 
 function showLevelCompleteMenu() {
+  gamerunning = false;
   const menu = document.createElement("div");
   menu.id = "levelCompleteMenu";
   menu.innerHTML = `
@@ -383,7 +389,6 @@ function showLevelCompleteMenu() {
   document.getElementById("returnHome").addEventListener("click", () => {
     savePlayerData(
       localStorage.getItem("playerName"),
-      player.score,
       player.coins,
       player.levels
     );
@@ -403,7 +408,7 @@ function startNextLevel() {
 }
 
 function savePlayerData(name, score, coins, levels) {
-  const playerData = { name, score, coins, levels };
+  const playerData = { name, coins, levels };
 
   fetch("./data.json", {
     method: "POST",
