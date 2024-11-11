@@ -1,75 +1,9 @@
-console.log("main.js loaded");
-const canvas_id = document.getElementById("canvas");
-const ctx = canvas_id.getContext("2d");
-
-// Set canvas size
-canvas_id.width = 800;
-canvas_id.height = 600;
-
-// Player object
-let player = {
-  x: 100,
-  y: 500,
-  width: 50,
-  height: 50,
-  speed: 5,
-  velocityY: 0,
-  jumpStrength: 15,
-  gravity: 0.8,
-  grounded: false,
+let camera = {
+  x: 0,
+  y: 0,
+  width: canvas_id.width,
+  height: canvas_id.height,
 };
-
-// ASCII map (define your level here)
-const asciiMap = `
-................
-.....###........
-.......#........
-...#####........
-...........#####`;
-
-// Tile size for platforms
-const tileSize = 50;
-
-// Platforms array
-let platforms = [];
-
-// Parse the ASCII map
-function parseMap(map) {
-  const rows = map.trim().split("\n");
-  rows.forEach((row, y) => {
-    [...row].forEach((char, x) => {
-      if (char === "#") {
-        platforms.push({
-          x: x * tileSize,
-          y: y * tileSize,
-          width: tileSize,
-          height: tileSize,
-        });
-      }
-    });
-  });
-}
-
-// Object to keep track of keys
-let keys = {
-  a: false,
-  d: false,
-};
-
-// Listen for keydown and keyup events
-window.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && player.grounded) {
-    player.velocityY = -player.jumpStrength;
-    player.grounded = false;
-  }
-  if (e.key === "a") keys.a = true;
-  if (e.key === "d") keys.d = true;
-});
-
-window.addEventListener("keyup", (e) => {
-  if (e.key === "a") keys.a = false;
-  if (e.key === "d") keys.d = false;
-});
 
 function update() {
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
@@ -82,8 +16,8 @@ function update() {
   if (keys.a) player.x -= player.speed;
   if (keys.d) player.x += player.speed;
 
-  // Collision detection with each platform
-  player.grounded = false; // Reset grounded status
+  // Collision detection with platforms
+  player.grounded = false;
   platforms.forEach((platform) => {
     if (
       player.x < platform.x + platform.width &&
@@ -91,34 +25,63 @@ function update() {
       player.y < platform.y + platform.height &&
       player.y + player.height > platform.y
     ) {
-      // Player is standing on a platform
       if (player.velocityY > 0) {
-        // Only stop falling
-        player.y = platform.y - player.height; // Place player on top of the platform
-        player.velocityY = 0; // Stop vertical movement
-        player.grounded = true; // Set grounded to true
+        player.y = platform.y - player.height;
+        player.velocityY = 0;
+        player.grounded = true;
       }
     }
   });
 
+  // Check collision with door
+  if (
+    player.x < door.x + door.width &&
+    player.x + player.width > door.x &&
+    player.y < door.y + door.height &&
+    player.y + player.height > door.y
+  ) {
+    alert("Level Completed!");
+    resetGame();
+  }
+
   // Prevent player from moving out of bounds
   if (player.x < 0) player.x = 0;
-  if (player.x + player.width > canvas_id.width)
-    player.x = canvas_id.width - player.width;
+  if (player.x + player.width > cols * tileSize)
+    player.x = cols * tileSize - player.width;
+
+  // Camera logic
+  camera.x = Math.max(
+    0,
+    Math.min(player.x - camera.width / 2, cols * tileSize - camera.width)
+  );
+  camera.y = Math.max(
+    0,
+    Math.min(player.y - camera.height / 2, rows * tileSize - camera.height)
+  );
+
+  // Draw platforms
+  ctx.fillStyle = "green";
+  platforms.forEach((platform) => {
+    ctx.fillRect(
+      platform.x - camera.x,
+      platform.y - camera.y,
+      platform.width,
+      platform.height
+    );
+  });
 
   // Draw the player
   ctx.fillStyle = "blue";
-  ctx.fillRect(player.x, player.y, player.width, player.height);
+  ctx.fillRect(
+    player.x - camera.x,
+    player.y - camera.y,
+    player.width,
+    player.height
+  );
 
-  // Draw the platforms
-  ctx.fillStyle = "green";
-  platforms.forEach((platform) => {
-    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-  });
+  // Draw the door
+  ctx.fillStyle = "red";
+  ctx.fillRect(door.x - camera.x, door.y - camera.y, door.width, door.height);
 
   requestAnimationFrame(update);
 }
-
-// Parse the map and start the game
-parseMap(asciiMap);
-update();
