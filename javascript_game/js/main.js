@@ -9,39 +9,61 @@ canvas_id.height = 600;
 // Player object
 let player = {
   x: 100,
-  y: 500, // Start near the bottom of the canvas
+  y: 500,
   width: 50,
   height: 50,
   speed: 5,
-  velocityY: 0, // Vertical velocity
-  jumpStrength: 15, // How high the player can jump
-  gravity: 0.8, // Gravity value
-  grounded: false, // Whether the player is on the ground
+  velocityY: 0,
+  jumpStrength: 15,
+  gravity: 0.8,
+  grounded: false,
 };
 
-// Ground
-const ground = {
-  x: 0,
-  y: 550, // Ground position
-  width: canvas_id.width,
-  height: 50,
-};
+// ASCII map (define your level here)
+const asciiMap = `
+................
+.....###........
+.......#........
+...#####........
+...........#####`;
+
+// Tile size for platforms
+const tileSize = 50;
+
+// Platforms array
+let platforms = [];
+
+// Parse the ASCII map
+function parseMap(map) {
+  const rows = map.trim().split("\n");
+  rows.forEach((row, y) => {
+    [...row].forEach((char, x) => {
+      if (char === "#") {
+        platforms.push({
+          x: x * tileSize,
+          y: y * tileSize,
+          width: tileSize,
+          height: tileSize,
+        });
+      }
+    });
+  });
+}
 
 // Object to keep track of keys
 let keys = {
-  w: false,
   a: false,
   d: false,
 };
 
 // Listen for keydown and keyup events
 window.addEventListener("keydown", (e) => {
-  if (e.key === "w" && player.grounded) {
-    player.velocityY = -player.jumpStrength; // Jump
-    player.grounded = false; // Leave the ground
+  if (e.code === "Space" && player.grounded) {
+    player.velocityY = -player.jumpStrength;
+    player.grounded = false;
   }
-  if (e.key === "a") keys.a = true; // Move left
-  if (e.key === "d") keys.d = true; // Move right
+  if (e.key === "a") keys.a = true;
+  if (e.key === "d") keys.d = true;
 });
 
 window.addEventListener("keyup", (e) => {
@@ -50,7 +72,6 @@ window.addEventListener("keyup", (e) => {
 });
 
 function update() {
-  // Clear the canvas
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
 
   // Apply gravity
@@ -61,12 +82,24 @@ function update() {
   if (keys.a) player.x -= player.speed;
   if (keys.d) player.x += player.speed;
 
-  // Ground collision detection
-  if (player.y + player.height > ground.y) {
-    player.y = ground.y - player.height; // Reset to the top of the ground
-    player.velocityY = 0; // Stop downward movement
-    player.grounded = true; // Player is on the ground
-  }
+  // Collision detection with each platform
+  player.grounded = false; // Reset grounded status
+  platforms.forEach((platform) => {
+    if (
+      player.x < platform.x + platform.width &&
+      player.x + player.width > platform.x &&
+      player.y < platform.y + platform.height &&
+      player.y + player.height > platform.y
+    ) {
+      // Player is standing on a platform
+      if (player.velocityY > 0) {
+        // Only stop falling
+        player.y = platform.y - player.height; // Place player on top of the platform
+        player.velocityY = 0; // Stop vertical movement
+        player.grounded = true; // Set grounded to true
+      }
+    }
+  });
 
   // Prevent player from moving out of bounds
   if (player.x < 0) player.x = 0;
@@ -77,12 +110,15 @@ function update() {
   ctx.fillStyle = "blue";
   ctx.fillRect(player.x, player.y, player.width, player.height);
 
-  // Draw the ground
+  // Draw the platforms
   ctx.fillStyle = "green";
-  ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
+  platforms.forEach((platform) => {
+    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+  });
 
-  // Request next frame
   requestAnimationFrame(update);
 }
 
+// Parse the map and start the game
+parseMap(asciiMap);
 update();
