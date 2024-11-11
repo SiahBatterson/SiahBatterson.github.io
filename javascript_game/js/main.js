@@ -9,14 +9,15 @@ canvas_id.height = 720;
 let player = {
   x: 0,
   y: 0,
-  width: 50,
-  height: 50,
-  speed: 5,
+  width: 40,
+  height: 40,
+  speed: 7,
   velocityX: 0,
   velocityY: 0,
-  jumpStrength: 15,
-  gravity: 0.8,
+  jumpStrength: 17,
+  gravity: 0.9,
   grounded: false,
+  coins: 0,
 };
 
 // Door object
@@ -29,6 +30,7 @@ const cols = 32;
 
 // Platforms array
 let platforms = [];
+let coins = [];
 
 // Camera setup
 let camera = {
@@ -38,49 +40,77 @@ let camera = {
   height: canvas_id.height,
 };
 
-// Generate a random ASCII map with a reserved 3x3 grid for the player
 function generateRandomMap() {
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
-  // Introduce bias for platform placement
-  for (let y = 2; y < rows - 1; y++) {
-    for (let x = 1; x < cols - 1; x++) {
-      if (Math.random() < 0.2 + y * 0.02) {
-        map[y][x] = "#";
-
-        if (Math.random() < 0.3) {
-          map[y][x - 1] = "#";
-          map[y][x + 1] = "#";
-        }
-      }
-    }
-  }
-
-  // Ensure ground on the last row
+  // Ensure ground line
   for (let x = 0; x < cols; x++) {
     map[rows - 1][x] = "#";
   }
 
-  // Reserve a 3x3 area for the player spawn
-  const spawnX = 2;
-  const spawnY = rows - 4;
-  for (let y = spawnY; y < spawnY + 3; y++) {
-    for (let x = spawnX; x < spawnX + 3; x++) {
-      if (y < rows - 1) {
-        map[y][x] = ".";
+  // Introduce platforms with more spacing and varied types
+  for (let y = 2; y < rows - 2; y++) {
+    for (let x = 1; x < cols - 4; x++) {
+      let rnd_number = Math.random();
+      if (Math.random() < 0.1) {
+        // Control platform density
+        const platformType = Math.floor(Math.random() * 4);
+        switch (platformType) {
+          case 0: // 2x1 platform
+            map[y][x] = "#";
+            map[y][x + 1] = "#";
+            break;
+          case 1: // 3x1 platform
+            map[y][x] = "#";
+            map[y - 1][x - 1] = "#";
+            map[y - 1][x] = "#";
+            break;
+          case 2: // 4x1 platform
+            map[y][x] = "#";
+            map[y][x + 1] = "#";
+            map[y][x + 2] = "#";
+            map[y][x + 3] = "#";
+            break;
+          case 3: // 2x2 platform
+            map[y][x] = "#";
+            map[y + 1][x] = "#";
+            map[y][x + 1] = "#";
+            map[y + 1][x + 1] = "#";
+            break;
+        }
+      } else if (
+        rnd_number > 0.11 &&
+        rnd_number < 0.12 &&
+        map[y + 1][x + 1] != "C" &&
+        map[y + 1][x] != "C" &&
+        map[y][x + 1] != "C" &&
+        map[y - 1][x] != "C" &&
+        map[y][x - 1] != "C" &&
+        map[y - 1][x - 1] != "C"
+      ) {
+        map[y][x] = "C";
       }
     }
   }
 
-  // Place the player start point in the center of the reserved 3x3 area
+  // Reserve a spawn area
+  const spawnX = 2;
+  const spawnY = rows - 5;
+  for (let y = spawnY; y < spawnY + 3; y++) {
+    for (let x = spawnX; x < spawnX + 3; x++) {
+      map[y][x] = ".";
+    }
+  }
+
+  // Place the player start point
   map[spawnY + 1][spawnX + 1] = "P";
 
-  // Place the door on an accessible platform
+  // Place a door at a random valid platform location
   let placed = false;
   while (!placed) {
-    const x = Math.floor(Math.random() * cols);
-    const y = Math.floor(Math.random() * (rows - 2));
-    if (map[y][x] === "#") {
+    const x = Math.floor(Math.random() * (cols - 2)) + 1;
+    const y = Math.floor(Math.random() * (rows - 5)) + 1;
+    if (map[y][x] === "#" && map[y - 1][x] === ".") {
       map[y - 1][x] = "@";
       placed = true;
     }
@@ -112,6 +142,13 @@ function parseMap(map) {
           width: tileSize,
           height: tileSize,
         };
+      } else if (char === "C") {
+        coins.push({
+          x: x * tileSize,
+          y: y * tileSize,
+          width: tileSize / 2,
+          height: tileSize / 2,
+        });
       }
     });
   });
@@ -137,81 +174,87 @@ window.addEventListener("keyup", (e) => {
   if (e.key === "d") keys.d = false;
 });
 
-// Collision detection for all sides
+// Basic AABB collision detection
 function checkCollision(player, platform) {
-  const playerBottom = player.y + player.height;
-  const playerTop = player.y;
-  const playerRight = player.x + player.width;
-  const playerLeft = player.x;
+  return (
+    player.x < platform.x + platform.width &&
+    player.x + player.width > platform.x &&
+    player.y < platform.y + platform.height &&
+    player.y + player.height > platform.y
+  );
+}
 
-  const platformBottom = platform.y + platform.height;
-  const platformTop = platform.y;
-  const platformRight = platform.x + platform.width;
-  const platformLeft = platform.x;
+// Resolve collisions
+function resolveCollisions() {
+  platforms.forEach((platform) => {
+    if (checkCollision(player, platform)) {
+      const dx1 = platform.x - (player.x + player.width); // Distance to platform's left
+      const dx2 = platform.x + platform.width - player.x; // Distance to platform's right
+      const dy1 = platform.y - (player.y + player.height); // Distance to platform's top
+      const dy2 = platform.y + platform.height - player.y; // Distance to platform's bottom
 
-  // Top collision
-  if (
-    playerBottom > platformTop &&
-    playerTop < platformTop &&
-    playerRight > platformLeft &&
-    playerLeft < platformRight
-  ) {
-    player.y = platformTop - player.height;
-    player.velocityY = 0;
-    player.grounded = true;
-  }
+      const minDist = Math.min(
+        Math.abs(dx1),
+        Math.abs(dx2),
+        Math.abs(dy1),
+        Math.abs(dy2)
+      );
 
-  // Bottom collision
-  if (
-    playerTop < platformBottom &&
-    playerBottom > platformBottom &&
-    playerRight > platformLeft &&
-    playerLeft < platformRight
-  ) {
-    player.y = platformBottom;
-    player.velocityY = 0.5;
-  }
+      if (minDist === Math.abs(dy1) && player.velocityY > 0) {
+        // Ground collision
+        player.y = platform.y - player.height;
+        player.velocityY = 0;
+        player.grounded = true;
+      } else if (minDist === Math.abs(dy2) && player.velocityY < 0) {
+        // Ceiling collision
+        player.y = platform.y + platform.height;
+        player.velocityY = 0;
+      } else if (minDist === Math.abs(dx1) && player.velocityX > 0) {
+        // Right wall collision
+        player.x = platform.x - player.width;
+        player.velocityX = 0;
+      } else if (minDist === Math.abs(dx2) && player.velocityX < 0) {
+        // Left wall collision
+        player.x = platform.x + platform.width;
+        player.velocityX = 0;
+      }
+    }
+  });
+}
 
-  // Left collision
-  if (
-    playerRight > platformLeft &&
-    playerLeft < platformLeft &&
-    playerBottom > platformTop &&
-    playerTop < platformBottom
-  ) {
-    player.x = platformLeft - player.width;
-  }
-
-  // Right collision
-  if (
-    playerLeft < platformRight &&
-    playerRight > platformRight &&
-    playerBottom > platformTop &&
-    playerTop < platformBottom
-  ) {
-    player.x = platformRight;
-  }
+function checkCoinCollision(player, coin) {
+  return (
+    player.x < coin.x + coin.width &&
+    player.x + player.width > coin.x &&
+    player.y < coin.y + coin.height &&
+    player.y + player.height > coin.y
+  );
 }
 
 // Update and render loop
 function update() {
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
 
-  // Apply gravity
   player.velocityY += player.gravity;
-  player.y += player.velocityY;
 
-  // Handle horizontal movement
-  player.velocityX = 0; // Reset horizontal velocity each frame
+  // Horizontal movement
+  player.velocityX = 0;
   if (keys.a) player.velocityX = -player.speed;
   if (keys.d) player.velocityX = player.speed;
-  player.x += player.velocityX;
 
-  // Collision detection with platforms
+  player.x += player.velocityX;
+  player.y += player.velocityY;
+
+  // Coin collection logic
+  for (let i = coins.length - 1; i >= 0; i--) {
+    if (checkCoinCollision(player, coins[i])) {
+      coins.splice(i, 1); // Remove the coin from the array
+      player.coins++; // Increment player's coin count
+    }
+  }
+
   player.grounded = false;
-  platforms.forEach((platform) => {
-    checkCollision(player, platform);
-  });
+  resolveCollisions();
 
   // Check collision with door
   if (
@@ -220,7 +263,11 @@ function update() {
     player.y < door.y + door.height &&
     player.y + player.height > door.y
   ) {
-    alert("Level Completed!");
+    if (coins.length < 1) {
+      alert("Level Completed! 100%");
+    } else {
+      alert("Level Completed!");
+    }
     resetGame();
   }
 
@@ -245,6 +292,16 @@ function update() {
     );
   });
 
+  ctx.fillStyle = "gold";
+  coins.forEach((coins) => {
+    ctx.fillRect(
+      coins.x - camera.x,
+      coins.y - camera.y,
+      coins.width,
+      coins.height
+    );
+  });
+
   // Draw the player
   ctx.fillStyle = "blue";
   ctx.fillRect(
@@ -254,6 +311,10 @@ function update() {
     player.height
   );
 
+  ctx.fillStyle = "black";
+  ctx.font = "20px Arial";
+  ctx.fillText(`Coins: ${player.coins}`, 10, 30);
+
   // Draw the door
   ctx.fillStyle = "red";
   ctx.fillRect(door.x - camera.x, door.y - camera.y, door.width, door.height);
@@ -261,7 +322,7 @@ function update() {
   requestAnimationFrame(update);
 }
 
-// Reset the game
+// Reset game
 function resetGame() {
   const newMap = generateRandomMap();
   parseMap(newMap);
