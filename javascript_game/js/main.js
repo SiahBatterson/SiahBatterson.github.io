@@ -389,11 +389,7 @@ function showLevelCompleteMenu() {
   document.body.appendChild(menu);
 
   document.getElementById("returnHome").addEventListener("click", () => {
-    savePlayerData(
-      localStorage.getItem("playerName"),
-      player.coins,
-      player.levels
-    );
+    savePlayerData(localStorage.getItem("playerName"), player.coins, levels);
     window.location.href = "index.html"; // Redirect to leaderboard
   });
 
@@ -404,12 +400,11 @@ function showLevelCompleteMenu() {
 }
 
 function startNextLevel() {
-  player.levels += 1; // Increment level count
   player.score += 100; // Add bonus for completing the level (optional)
   resetGame(); // Restart the game for the next level
 }
 
-function savePlayerData(name, score, coins, levels) {
+function savePlayerData(name, coins, levels) {
   const playerData = { name, coins, levels };
 
   fetch("./data.json", {
