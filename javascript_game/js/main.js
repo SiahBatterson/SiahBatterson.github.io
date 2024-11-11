@@ -345,7 +345,6 @@ function update() {
 // Reset game
 function resetGame() {
   timer.startTime = Date.now(); // Record the start time
-  player.coins = 0; // Reset coin count
   coins = []; // Reset coin array
   platforms = []; // Reset platforms
   const newMap = generateRandomMap();
@@ -404,21 +403,26 @@ function startNextLevel() {
   resetGame(); // Restart the game for the next level
 }
 
-function savePlayerData(name, coins, levels) {
+async function savePlayerData(name, coins, levels) {
   const playerData = { name, coins, levels };
 
-  fetch("./data.json", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(playerData),
-  })
-    .then((response) => {
-      if (!response.ok) throw new Error("Failed to save player data");
-      console.log("Player data saved:", playerData);
-    })
-    .catch((error) => console.error("Error saving player data:", error));
+  try {
+    const response = await fetch("/.netlify/functions/saveData", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(playerData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to save data: ${response.statusText}`);
+    }
+
+    console.log("Player data saved:", playerData);
+  } catch (error) {
+    console.error("Error saving player data:", error);
+  }
 }
 
 // Trigger the menu on level completion
