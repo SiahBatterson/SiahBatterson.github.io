@@ -21,6 +21,8 @@ coinTexture.src = "textures/coin.png"; // Path to your coin texture
 const doorTexture = new Image();
 doorTexture.src = "textures/door.png"; // Path to your door texture
 
+let time_left_to_complete_level = 25 / (1 + 1 / levels);
+
 let timer = {
   startTime: null, // Record the time when the level starts
   currentTime: 0, // Time elapsed in seconds
@@ -273,6 +275,17 @@ function update() {
   if (!gamerunning) {
     return;
   }
+
+  if (time_left_to_complete_level > timer.currentTime) {
+    const name = localStorage.getItem("playerName");
+    console.log(`Attempting to save data for ${name}`); // Debugging log
+
+    savePlayerData(name, player.coins, levels); // Save player data
+    console.log("Player data saved, redirecting to index...");
+
+    window.location.href = "../index.html"; // Redirect to leaderboard
+  }
+
   // Update the timer
   if (timer.startTime) {
     timer.currentTime = ((Date.now() - timer.startTime) / 1000).toFixed(2); // Update elapsed time
@@ -361,7 +374,11 @@ function drawScene() {
   // Display the timer and coin count
   ctx.fillStyle = "black";
   ctx.font = "20px Arial";
-  ctx.fillText(`Time: ${timer.currentTime}s`, 10, 50); // Display timer
+  ctx.fillText(
+    `Time: ${timer.currentTime}/${time_left_to_complete_level}s`,
+    10,
+    50
+  ); // Display timer
   ctx.fillText(`Coins: ${player.coins}`, 10, 80); // Display coins
 }
 
@@ -409,6 +426,7 @@ async function savePlayerData(name, coins, levels) {
 function showLevelCompleteMenu() {
   gamerunning = false;
   levels += 1;
+  time_left_to_complete_level = 25 / (1 + 1 / levels);
   const menu = document.createElement("div");
   menu.id = "levelCompleteMenu";
   menu.innerHTML = `
