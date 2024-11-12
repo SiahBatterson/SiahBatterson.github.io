@@ -387,8 +387,13 @@ function showLevelCompleteMenu() {
 
   document.body.appendChild(menu);
 
-  document.getElementById("returnHome").addEventListener("click", () => {
-    savePlayerData(localStorage.getItem("playerName"), player.coins, levels);
+  document.getElementById("returnHome").addEventListener("click", async () => {
+    const name = localStorage.getItem("playerName");
+    console.log(`Attempting to save data for ${name}`); // Debugging log
+
+    await savePlayerData(name, player.coins, levels); // Save player data
+    console.log("Player data saved, redirecting to index...");
+
     window.location.href = "../index.html"; // Redirect to leaderboard
   });
 
@@ -407,30 +412,27 @@ async function savePlayerData(name, coins, levels) {
   const playerData = { name, coins, levels };
 
   try {
-    const response = await fetch(
-      "https://brilliant-fox-2f7955.netlify.app/.netlify/functions/dispatch",
-      {
-        // Correct function endpoint
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    const response = await fetch("/.netlify/functions/dispatch", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        client_payload: {
+          data: playerData,
         },
-        body: JSON.stringify({
-          // Correctly format the body
-          client_payload: {
-            data: playerData,
-          },
-        }),
-      }
-    );
+      }),
+    });
+
+    console.log("Fetch response:", response); // Log fetch response
 
     if (!response.ok) {
       throw new Error(`Failed to save data: ${response.statusText}`);
     }
 
-    console.log("Player data saved:", playerData);
+    console.log("Data successfully saved:", await response.json()); // Confirm data is sent
   } catch (error) {
-    console.error("Error saving player data:", error);
+    console.error("Error saving player data:", error); // Log errors
   }
 }
 
