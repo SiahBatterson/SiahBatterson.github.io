@@ -72,45 +72,49 @@ function generateRandomMap() {
     map[rows - 1][x] = "#";
   }
 
-  // Introduce platforms with more spacing and varied types
+  // Introduce platforms with more natural groupings
   for (let y = 2; y < rows - 2; y++) {
     for (let x = 1; x < cols - 4; x++) {
       let rnd_number = Math.random();
-      if (Math.random() < 0.1) {
-        // Control platform density
-        const platformType = Math.floor(Math.random() * 4);
+
+      // Create larger continuous ground sections
+      if (rnd_number < 0.15) {
+        // Random chance to start a ground section
+        const groundLength = Math.floor(Math.random() * 5) + 3; // Ground length between 3-7 tiles
+        for (let i = 0; i < groundLength; i++) {
+          if (x + i < cols - 2) {
+            map[y][x + i] = "#"; // Ground platform
+          }
+        }
+        x += groundLength - 1; // Skip forward to prevent overlapping clusters
+      } else if (rnd_number >= 0.15 && rnd_number < 0.2) {
+        // Create smaller isolated platforms
+        const platformType = Math.floor(Math.random() * 3); // Choose between a few small platform types
         switch (platformType) {
           case 0: // 2x1 platform
             map[y][x] = "#";
             map[y][x + 1] = "#";
             break;
-          case 1: // 3x1 platform
-            map[y][x] = "#";
-            map[y - 1][x - 1] = "#";
-            map[y - 1][x] = "#";
+          case 1: // 3x1 platform at a height variation
+            if (y - 1 > 0) {
+              map[y - 1][x] = "#";
+              map[y - 1][x + 1] = "#";
+              map[y - 1][x + 2] = "#";
+            }
             break;
-          case 2: // 4x1 platform
-            map[y][x] = "#";
-            map[y][x + 1] = "#";
-            map[y][x + 2] = "#";
-            map[y][x + 3] = "#";
-            break;
-          case 3: // 2x2 platform
+          case 2: // 2x2 platform
             map[y][x] = "#";
             map[y + 1][x] = "#";
             map[y][x + 1] = "#";
             map[y + 1][x + 1] = "#";
             break;
-          case 4: // 2x2 platform
-            map[y][x] = "#";
-            map[y - 1][x] = "#";
-            map[y - 2][x] = "#";
-            map[y - 2][x - 1] = "#";
-            break;
         }
-      } else if (
-        rnd_number > 0.11 &&
-        rnd_number < 0.12 &&
+      }
+
+      // Add occasional floating collectible logic (C)
+      if (
+        rnd_number > 0.2 &&
+        rnd_number < 0.22 &&
         map[y + 1][x + 1] != "C" &&
         map[y + 1][x] != "C" &&
         map[y][x + 1] != "C" &&
@@ -118,7 +122,12 @@ function generateRandomMap() {
         map[y][x - 1] != "C" &&
         map[y - 1][x - 1] != "C"
       ) {
-        map[y][x] = "C";
+        map[y][x] = "C"; // Place a collectible
+      }
+
+      // Randomized gap (acts as a challenge to the player)
+      if (rnd_number > 0.95) {
+        x += Math.floor(Math.random() * 3) + 1; // Create gaps with 1-3 tiles
       }
     }
   }
