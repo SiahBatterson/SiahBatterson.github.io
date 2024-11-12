@@ -47,9 +47,9 @@
           leaderboard.innerHTML = sortedData
             .map(
               (entry, index) =>
-                `<p>${index + 1}. score: ${entry.coins + entry.levels}. ${
-                  entry.name
-                }: ${entry.coins} coins, ${entry.levels} levels completed</p>`
+                `<p>${index + 1}. ${entry.name}: [ score: ${
+                  entry.coins + entry.levels
+                }. ] ${entry.coins} coins, ${entry.levels} levels completed</p>`
             )
             .join("");
         } catch (error) {
