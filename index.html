@@ -40,14 +40,16 @@
 
           // Sort and display top scores
           const sortedData = data
-            .sort((a, b) => b.coins - a.coins) // Sort by coins in descending order
+            .sort((a, b) => b.coins * b.levels - a.coins * a.levels) // Sort by coins in descending order
             .slice(0, 5); // Display top 5 players
 
           const leaderboard = document.getElementById("leaderboard");
           leaderboard.innerHTML = sortedData
             .map(
-              (entry) =>
-                `<p>${entry.name}: ${entry.coins} coins, ${entry.levels} levels completed</p>`
+              (entry, index) =>
+                `<p>${index + 1}. ${entry.name}: ${entry.coins} coins, ${
+                  entry.levels
+                } levels completed</p>`
             )
             .join("");
         } catch (error) {
