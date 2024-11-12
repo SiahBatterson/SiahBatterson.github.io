@@ -64,51 +64,114 @@ let camera = {
   height: canvas_id.height,
 };
 
-function generateRandomMap(rows, cols) {
+const canvas_id = document.getElementById("canvas");
+const ctx = canvas_id.getContext("2d");
+
+// Set canvas size
+canvas_id.width = 1280;
+canvas_id.height = 720;
+const name = localStorage.getItem("playerName");
+let gamerunning = true;
+let levels = 1;
+
+// Load textures
+const platformTexture = new Image();
+platformTexture.src = "textures/platform.png"; // Path to your platform texture
+
+const playerTexture = new Image();
+playerTexture.src = "textures/player.png"; // Path to your player texture
+
+const coinTexture = new Image();
+coinTexture.src = "textures/coin.png"; // Path to your coin texture
+
+const doorTexture = new Image();
+doorTexture.src = "textures/door.png"; // Path to your door texture
+
+let time_left_to_complete_level = 25;
+
+let timer = {
+  startTime: null, // Record the time when the level starts
+  currentTime: 0, // Time elapsed in seconds
+};
+
+let player = {
+  x: 0,
+  y: 0,
+  width: 40,
+  height: 40,
+  speed: 7,
+  velocityX: 0,
+  velocityY: 0,
+  jumpStrength: 17,
+  gravity: 0.9,
+  grounded: false,
+  coins: 0,
+  onWall: false,
+  wallJumpDirection: 0,
+};
+
+// Door object
+let door = null;
+
+// Tile and level settings
+const tileSize = 50;
+const rows = 20;
+const cols = 32;
+
+// Platforms array
+let platforms = [];
+let coins = [];
+
+// Camera setup
+let camera = {
+  x: 0,
+  y: 0,
+  width: canvas_id.width,
+  height: canvas_id.height,
+};
+
+function generateRandomMap() {
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
-  // Ensure ground line at the bottom of the map
+  // Ensure ground line at the bottom
   for (let x = 0; x < cols; x++) {
     map[rows - 1][x] = "#";
   }
 
-  // Introduce platforms with more natural groupings and varied terrain
+  // Generate platforms
   for (let y = 2; y < rows - 2; y++) {
     for (let x = 1; x < cols - 4; x++) {
       let rnd_number = Math.random();
 
       // Create larger continuous ground sections
       if (rnd_number < 0.15) {
-        const groundLength = Math.floor(Math.random() * 5) + 3; // Ground length between 3-7 tiles
+        const groundLength = Math.floor(Math.random() * 5) + 3;
         for (let i = 0; i < groundLength; i++) {
           if (x + i < cols - 2) {
-            map[y][x + i] = "#"; // Ground platform
+            map[y][x + i] = "#";
           }
         }
 
-        // Add small variation within the block by clearing one tile
         if (Math.random() > 0.5) {
           const gap = Math.floor(Math.random() * (groundLength - 1)) + 1;
           map[y][x + gap] = ".";
         }
-
-        x += groundLength - 1; // Skip forward to prevent overlapping
+        x += groundLength - 1;
       } else if (rnd_number >= 0.15 && rnd_number < 0.2) {
-        // Create smaller isolated platforms
-        const platformType = Math.floor(Math.random() * 3); // Choose between 3 small platform types
+        const platformType = Math.floor(Math.random() * 3);
         switch (platformType) {
-          case 0: // 2x1 platform
+          case 0:
             map[y][x] = "#";
             map[y][x + 1] = "#";
             break;
-          case 1: // 3x1 elevated platform
+          case 1:
             if (y - 1 > 0) {
               map[y - 1][x] = "#";
               map[y - 1][x + 1] = "#";
               map[y - 1][x + 2] = "#";
             }
             break;
-          case 2: // 2x2 platform
+          case 2:
             map[y][x] = "#";
             map[y + 1][x] = "#";
             map[y][x + 1] = "#";
@@ -117,7 +180,7 @@ function generateRandomMap(rows, cols) {
         }
       }
 
-      // Fill enclosed air spaces (surrounded by ground)
+      // Fill enclosed air spaces horizontally
       if (
         map[y][x] === "." &&
         map[y - 1][x] === "#" &&
@@ -128,29 +191,28 @@ function generateRandomMap(rows, cols) {
         map[y][x] = "#";
       }
 
-      // Fill vertical gaps (spaces between ground above and below)
+      // Fill vertical gaps
       if (map[y][x] === "." && map[y - 1][x] === "#" && map[y + 1][x] === "#") {
         map[y][x] = "#";
       }
 
-      // Add occasional floating collectible (C)
+      // Add collectibles
       if (
         rnd_number > 0.2 &&
         rnd_number < 0.22 &&
         map[y][x] === "." &&
         map[y + 1][x] !== "C"
       ) {
-        map[y][x] = "C"; // Place collectible
+        map[y][x] = "C";
       }
 
-      // Randomized gap (acts as a challenge to the player)
       if (rnd_number > 0.95) {
-        x += Math.floor(Math.random() * 3) + 1; // Create gaps with 1-3 tiles
+        x += Math.floor(Math.random() * 3) + 1;
       }
     }
   }
 
-  // Reserve a spawn area (clear space near bottom)
+  // Reserve spawn area
   const spawnX = 2;
   const spawnY = rows - 5;
   for (let y = spawnY; y < spawnY + 3; y++) {
@@ -159,27 +221,24 @@ function generateRandomMap(rows, cols) {
     }
   }
 
-  // Place the player start point
   map[spawnY + 1][spawnX + 1] = "P";
 
-  // Place a door (or exit) at a random valid platform location
   let placed = false;
   while (!placed) {
     const x = Math.floor(Math.random() * (cols - 2)) + 1;
     const y = Math.floor(Math.random() * (rows - 5)) + 1;
     if (map[y][x] === "#" && map[y - 1][x] === ".") {
-      map[y - 1][x] = "@"; // Place door
+      map[y - 1][x] = "@";
       placed = true;
     }
   }
 
-  // Convert map to a string representation for display or debugging
   return map.map((row) => row.join("")).join("\n");
 }
 
-// Parse the ASCII map
 function parseMap(map) {
   platforms = [];
+  coins = [];
   const rows = map.trim().split("\n");
   rows.forEach((row, y) => {
     [...row].forEach((char, x) => {
