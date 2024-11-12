@@ -407,7 +407,7 @@ async function savePlayerData(name, coins, levels) {
   const playerData = { name, coins, levels };
 
   try {
-    const response = await fetch("/.netlify/functions/dispatch", {
+    const response = await fetch("../.netlify/functions/dispatch", {
       // Correct endpoint
       method: "POST",
       headers: {
