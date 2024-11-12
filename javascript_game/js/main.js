@@ -291,6 +291,16 @@ function update() {
     timer.currentTime = ((Date.now() - timer.startTime) / 1000).toFixed(2); // Update elapsed time
   }
 
+  if (time_left_to_complete_level > timer.currentTime) {
+    const name = localStorage.getItem("playerName");
+    console.log(`Attempting to save data for ${name}`); // Debugging log
+
+    savePlayerData(name, player.coins, levels); // Save player data
+    console.log("Player data saved, redirecting to index...");
+
+    window.location.href = "../index.html"; // Redirect to leaderboard
+  }
+
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
 
   player.velocityY += player.gravity;
@@ -426,7 +436,8 @@ async function savePlayerData(name, coins, levels) {
 function showLevelCompleteMenu() {
   gamerunning = false;
   levels += 1;
-  time_left_to_complete_level = 25 / (1 + 1 / levels);
+  time_left_to_complete_level = 25 / levels;
+  time_left_to_complete_level = Math.round(time_left_to_complete_level);
   const menu = document.createElement("div");
   menu.id = "levelCompleteMenu";
   menu.innerHTML = `
