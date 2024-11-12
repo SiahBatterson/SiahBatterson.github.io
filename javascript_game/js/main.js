@@ -72,90 +72,75 @@ function generateRandomMap() {
     map[rows - 1][x] = "#";
   }
 
-  // Introduce platforms with more natural groupings
   for (let y = 2; y < rows - 2; y++) {
     for (let x = 1; x < cols - 4; x++) {
       let rnd_number = Math.random();
 
-      // Create larger continuous ground sections
+      // Create larger ground sections but break them up
       if (rnd_number < 0.15) {
-        // Random chance to start a ground section
         const groundLength = Math.floor(Math.random() * 5) + 3; // Ground length between 3-7 tiles
         for (let i = 0; i < groundLength; i++) {
           if (x + i < cols - 2) {
             map[y][x + i] = "#"; // Ground platform
           }
         }
-        x += groundLength - 1; // Skip forward to prevent overlapping clusters
+
+        // Introduce variation within the ground section
+        if (Math.random() > 0.5) {
+          const gap = Math.floor(Math.random() * (groundLength - 1)) + 1;
+          map[y][x + gap] = "."; // Introduce a gap within the block
+        }
+
+        x += groundLength - 1; // Skip over processed ground section
       } else if (rnd_number >= 0.15 && rnd_number < 0.2) {
         // Create smaller isolated platforms
-        const platformType = Math.floor(Math.random() * 3); // Choose between a few small platform types
+        const platformType = Math.floor(Math.random() * 2);
         switch (platformType) {
-          case 0: // 2x1 platform
+          case 0: // Small 2x1 platform
             map[y][x] = "#";
             map[y][x + 1] = "#";
             break;
-          case 1: // 3x1 platform at a height variation
+          case 1: // Elevated 2x1 platform
             if (y - 1 > 0) {
               map[y - 1][x] = "#";
               map[y - 1][x + 1] = "#";
-              map[y - 1][x + 2] = "#";
             }
-            break;
-          case 2: // 2x2 platform
-            map[y][x] = "#";
-            map[y + 1][x] = "#";
-            map[y][x + 1] = "#";
-            map[y + 1][x + 1] = "#";
             break;
         }
       }
 
-      // Add occasional floating collectible logic (C)
+      // Fill enclosed air spaces horizontally
+      if (
+        map[y][x] === "." &&
+        map[y - 1][x] === "#" &&
+        map[y + 1][x] === "#" &&
+        map[y][x - 1] === "#" &&
+        map[y][x + 1] === "#"
+      ) {
+        map[y][x] = "#"; // Fill enclosed space
+      }
+
+      // Fill spaces with ground above and below
+      if (map[y][x] === "." && map[y - 1][x] === "#" && map[y + 1][x] === "#") {
+        map[y][x] = "#"; // Fill vertical gap
+      }
+
+      // Add controlled collectible placement
       if (
         rnd_number > 0.2 &&
         rnd_number < 0.22 &&
-        map[y + 1][x + 1] != "C" &&
-        map[y + 1][x] != "C" &&
-        map[y][x + 1] != "C" &&
-        map[y - 1][x] != "C" &&
-        map[y][x - 1] != "C" &&
-        map[y - 1][x - 1] != "C"
+        map[y][x] !== "#" &&
+        map[y + 1][x] !== "C"
       ) {
-        map[y][x] = "C"; // Place a collectible
+        map[y][x] = "C"; // Place collectible in open space
       }
 
-      // Randomized gap (acts as a challenge to the player)
+      // Randomized gap to avoid long flat sections
       if (rnd_number > 0.95) {
-        x += Math.floor(Math.random() * 3) + 1; // Create gaps with 1-3 tiles
+        x += Math.floor(Math.random() * 3) + 1; // Create gaps 1-3 tiles wide
       }
     }
   }
-
-  // Reserve a spawn area
-  const spawnX = 2;
-  const spawnY = rows - 5;
-  for (let y = spawnY; y < spawnY + 3; y++) {
-    for (let x = spawnX; x < spawnX + 3; x++) {
-      map[y][x] = ".";
-    }
-  }
-
-  // Place the player start point
-  map[spawnY + 1][spawnX + 1] = "P";
-
-  // Place a door at a random valid platform location
-  let placed = false;
-  while (!placed) {
-    const x = Math.floor(Math.random() * (cols - 2)) + 1;
-    const y = Math.floor(Math.random() * (rows - 5)) + 1;
-    if (map[y][x] === "#" && map[y - 1][x] === ".") {
-      map[y - 1][x] = "@";
-      placed = true;
-    }
-  }
-
-  return map.map((row) => row.join("")).join("\n");
 }
 
 // Parse the ASCII map
