@@ -38,5 +38,10 @@
     "name": "This is Siah im not lying",
     "coins": 4,
     "levels": 1
+  },
+  {
+    "name": "Josiah",
+    "coins": 0,
+    "levels": 2
   }
 ]
