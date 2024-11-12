@@ -8,5 +8,5 @@ body {
 }
 
 canvas {
-  border: 2px solid bisque; /* Optional border for visibility */
+  border: 4px solid bisque; /* Optional border for visibility */
 }

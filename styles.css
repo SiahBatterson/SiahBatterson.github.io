@@ -1,7 +1,70 @@
-#title {
-  text-align: center;
-  color: green;
-}
-#data-input {
+/* styles.css */
+
+/* Ensure the entire page content is centered vertically and horizontally */
+body {
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Full viewport height */
+  margin: 0;
+  font-family: Arial, sans-serif; /* Optional: set a font */
+  background-color: #f0f0f0; /* Optional: set a background color */
+}
+
+/* Style the heading */
+h1 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Style the form */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+form label {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+form input {
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 300px;
+  text-align: center;
+}
+
+form button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+form button:hover {
+  background-color: #0056b3;
+}
+
+/* Style the leaderboard */
+h2 {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#leaderboard {
+  text-align: center;
+  font-size: 18px;
+}
+
+p {
+  margin: 5px 0;
 }
