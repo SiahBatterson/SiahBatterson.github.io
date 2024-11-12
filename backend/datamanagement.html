@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delete Entry</title>
+  </head>
+  <body>
+    <h2>Delete Entry</h2>
+    <form id="deleteForm">
+      <label for="deleteName">Enter name to delete:</label>
+      <input type="text" id="deleteName" required />
+      <button type="submit">Delete</button>
+    </form>
+
+    <p id="responseMessage"></p>
+
+    <script>
+      document
+        .getElementById("deleteForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const nameToDelete = document.getElementById("deleteName").value;
+          const responseMessage = document.getElementById("responseMessage");
+
+          try {
+            const response = await fetch("/.netlify/functions/deleteData", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name: nameToDelete }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              responseMessage.textContent = result.message;
+              responseMessage.style.color = "green";
+              document.getElementById("deleteForm").reset(); // Clear form
+            } else {
+              responseMessage.textContent = `Error: ${result.error}`;
+              responseMessage.style.color = "red";
+            }
+          } catch (error) {
+            console.error("Failed to delete entry:", error);
+            responseMessage.textContent =
+              "An error occurred while trying to delete the entry.";
+            responseMessage.style.color = "red";
+          }
+        });
+    </script>
+  </body>
+</html>
