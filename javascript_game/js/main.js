@@ -40,72 +40,6 @@ let player = {
   gravity: 0.9,
   grounded: false,
   coins: 0,
-  onWall: false, // New: to detect wall contact
-  wallJumpDirection: 0, // New: -1 for left wall, 1 for right wall
-};
-
-// Door object
-let door = null;
-
-// Tile and level settings
-const tileSize = 50;
-const rows = 20;
-const cols = 32;
-
-// Platforms array
-let platforms = [];
-let coins = [];
-
-// Camera setup
-let camera = {
-  x: 0,
-  y: 0,
-  width: canvas_id.width,
-  height: canvas_id.height,
-};
-
-const canvas_id = document.getElementById("canvas");
-const ctx = canvas_id.getContext("2d");
-
-// Set canvas size
-canvas_id.width = 1280;
-canvas_id.height = 720;
-const name = localStorage.getItem("playerName");
-let gamerunning = true;
-let levels = 1;
-
-// Load textures
-const platformTexture = new Image();
-platformTexture.src = "textures/platform.png"; // Path to your platform texture
-
-const playerTexture = new Image();
-playerTexture.src = "textures/player.png"; // Path to your player texture
-
-const coinTexture = new Image();
-coinTexture.src = "textures/coin.png"; // Path to your coin texture
-
-const doorTexture = new Image();
-doorTexture.src = "textures/door.png"; // Path to your door texture
-
-let time_left_to_complete_level = 25;
-
-let timer = {
-  startTime: null, // Record the time when the level starts
-  currentTime: 0, // Time elapsed in seconds
-};
-
-let player = {
-  x: 0,
-  y: 0,
-  width: 40,
-  height: 40,
-  speed: 7,
-  velocityX: 0,
-  velocityY: 0,
-  jumpStrength: 17,
-  gravity: 0.9,
-  grounded: false,
-  coins: 0,
   onWall: false,
   wallJumpDirection: 0,
 };
@@ -270,6 +204,8 @@ function parseMap(map) {
     });
   });
 }
+
+// Initialization and game loop logic remains unchanged...
 
 // Input tracking
 let keys = {
