@@ -8,6 +8,19 @@ const name = localStorage.getItem("playerName");
 let gamerunning = true;
 let levels = 1;
 
+// Load textures
+const platformTexture = new Image();
+platformTexture.src = "textures/platform.png"; // Path to your platform texture
+
+const playerTexture = new Image();
+playerTexture.src = "textures/player.png"; // Path to your player texture
+
+const coinTexture = new Image();
+coinTexture.src = "textures/coin.png"; // Path to your coin texture
+
+const doorTexture = new Image();
+doorTexture.src = "textures/door.png"; // Path to your door texture
+
 let timer = {
   startTime: null, // Record the time when the level starts
   currentTime: 0, // Time elapsed in seconds
@@ -262,11 +275,6 @@ function update() {
   }
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
 
-  // Update the timer
-  if (timer.startTime) {
-    timer.currentTime = ((Date.now() - timer.startTime) / 1000).toFixed(2); // Update elapsed time
-  }
-
   player.velocityY += player.gravity;
 
   // Horizontal movement
@@ -277,18 +285,7 @@ function update() {
   player.x += player.velocityX;
   player.y += player.velocityY;
 
-  // Coin collection logic
-  for (let i = coins.length - 1; i >= 0; i--) {
-    if (checkCoinCollision(player, coins[i])) {
-      coins.splice(i, 1); // Remove the coin from the array
-      player.coins++; // Increment player's coin count
-    }
-  }
-
-  player.grounded = false;
   resolveCollisions();
-
-  // Check collision with door
   checkLevelCompletion();
 
   // Camera logic
@@ -301,10 +298,10 @@ function update() {
     Math.min(player.y - camera.height / 2, rows * tileSize - camera.height)
   );
 
-  // Draw platforms
-  ctx.fillStyle = "green";
+  // Draw platforms with texture
   platforms.forEach((platform) => {
-    ctx.fillRect(
+    ctx.drawImage(
+      platformTexture,
       platform.x - camera.x,
       platform.y - camera.y,
       platform.width,
@@ -312,32 +309,34 @@ function update() {
     );
   });
 
-  // Draw coins
-  ctx.fillStyle = "gold";
+  // Draw coins with texture
   coins.forEach((coin) => {
-    ctx.fillRect(coin.x - camera.x, coin.y - camera.y, coin.width, coin.height);
+    ctx.drawImage(
+      coinTexture,
+      coin.x - camera.x,
+      coin.y - camera.y,
+      coin.width,
+      coin.height
+    );
   });
 
-  // Draw the player
-  ctx.fillStyle = "blue";
-  ctx.fillRect(
+  // Draw player with texture
+  ctx.drawImage(
+    playerTexture,
     player.x - camera.x,
     player.y - camera.y,
     player.width,
     player.height
   );
 
-  // Display the timer
-  ctx.fillStyle = "black";
-  ctx.font = "20px Arial";
-  ctx.fillText(`Time: ${timer.currentTime}s`, 10, 60);
-
-  // Display the coin count
-  ctx.fillText(`Coins: ${player.coins}`, 10, 30);
-
-  // Draw the door
-  ctx.fillStyle = "red";
-  ctx.fillRect(door.x - camera.x, door.y - camera.y, door.width, door.height);
+  // Draw door with texture
+  ctx.drawImage(
+    doorTexture,
+    door.x - camera.x,
+    door.y - camera.y,
+    door.width,
+    door.height
+  );
 
   requestAnimationFrame(update);
 }
