@@ -21,7 +21,7 @@ coinTexture.src = "textures/coin.png"; // Path to your coin texture
 const doorTexture = new Image();
 doorTexture.src = "textures/door.png"; // Path to your door texture
 
-let time_left_to_complete_level = 25 / (1 + 1 / levels);
+let time_left_to_complete_level = 25;
 
 let timer = {
   startTime: null, // Record the time when the level starts
