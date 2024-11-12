@@ -35,12 +35,12 @@
 
       async function fetchLeaderboard() {
         try {
-          const response = await fetch("./data.json"); // Fetch from the data.json file
+          const response = await fetch("./data.json"); // Fetch from your GitHub-hosted file
           const data = await response.json();
 
           // Sort and display top scores
           const sortedData = data
-            .sort((a, b) => b.score - a.score) // Sort by score in descending order
+            .sort((a, b) => b.coins - a.coins) // Sort by coins in descending order
             .slice(0, 5); // Display top 5 players
 
           const leaderboard = document.getElementById("leaderboard");
@@ -56,6 +56,9 @@
             "<p>Failed to load leaderboard data.</p>";
         }
       }
+
+      // Fetch leaderboard data on page load
+      window.onload = fetchLeaderboard;
 
       // Fetch and display leaderboard on page load
       window.onload = fetchLeaderboard;

@@ -408,6 +408,7 @@ async function savePlayerData(name, coins, levels) {
 
   try {
     const response = await fetch("/.netlify/functions/dispatch", {
+      // Correct endpoint
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -420,6 +421,7 @@ async function savePlayerData(name, coins, levels) {
     });
 
     if (!response.ok) {
+      alert("Failure to save player data");
       throw new Error(`Failed to save data: ${response.statusText}`);
     }
 
