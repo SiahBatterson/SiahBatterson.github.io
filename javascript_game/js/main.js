@@ -273,6 +273,11 @@ function update() {
   if (!gamerunning) {
     return;
   }
+  // Update the timer
+  if (timer.startTime) {
+    timer.currentTime = ((Date.now() - timer.startTime) / 1000).toFixed(2); // Update elapsed time
+  }
+
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
 
   player.velocityY += player.gravity;
@@ -286,6 +291,15 @@ function update() {
   player.y += player.velocityY;
 
   resolveCollisions();
+
+  // Coin collection logic
+  for (let i = coins.length - 1; i >= 0; i--) {
+    if (checkCoinCollision(player, coins[i])) {
+      coins.splice(i, 1); // Remove the coin from the array
+      player.coins++; // Increment player's coin count
+    }
+  }
+
   checkLevelCompletion();
 
   // Camera logic
@@ -298,6 +312,12 @@ function update() {
     Math.min(player.y - camera.height / 2, rows * tileSize - camera.height)
   );
 
+  drawScene(); // Draw everything
+
+  requestAnimationFrame(update);
+}
+
+function drawScene() {
   // Draw platforms with texture
   platforms.forEach((platform) => {
     ctx.drawImage(
@@ -338,7 +358,20 @@ function update() {
     door.height
   );
 
-  requestAnimationFrame(update);
+  // Display the timer and coin count
+  ctx.fillStyle = "black";
+  ctx.font = "20px Arial";
+  ctx.fillText(`Time: ${timer.currentTime}s`, 10, 50); // Display timer
+  ctx.fillText(`Coins: ${player.coins}`, 10, 80); // Display coins
+}
+
+function checkCoinCollision(player, coin) {
+  return (
+    player.x < coin.x + coin.width &&
+    player.x + player.width > coin.x &&
+    player.y < coin.y + coin.height &&
+    player.y + player.height > coin.y
+  );
 }
 
 // Reset game
