@@ -8,49 +8,78 @@
   <body>
     <nav><a href="../index.html">Home</a></nav>
     <h2>Delete Entry</h2>
-    <form id="deleteForm">
-      <label for="deleteName">Enter name to delete:</label>
-      <input type="text" id="deleteName" required />
-      <button type="submit">Delete</button>
-    </form>
 
+    <!-- Leaderboard Section -->
+    <h2>Leaderboard</h2>
+    <div id="leaderboard"></div>
+
+    <!-- Response Message -->
     <p id="responseMessage"></p>
 
     <script>
-      document
-        .getElementById("deleteForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
+      async function fetchLeaderboard() {
+        try {
+          const response = await fetch(
+            `./data.json?cache-bust=${new Date().getTime()}`
+          );
+          const data = await response.json();
 
-          const nameToDelete = document.getElementById("deleteName").value;
-          const responseMessage = document.getElementById("responseMessage");
+          const sortedData = data
+            .sort((a, b) => b.coins * b.levels - a.coins * a.levels)
+            .slice(0, 10); // Display top 10 players
 
-          try {
-            const response = await fetch("/.netlify/functions/deleteData", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ name: nameToDelete }),
-            });
+          const leaderboard = document.getElementById("leaderboard");
+          leaderboard.innerHTML = sortedData
+            .map(
+              (entry, index) => `
+                <div>
+                  <p>${index + 1}. ${entry.name}: ${entry.coins} coins, ${
+                entry.levels
+              } levels completed</p>
+                  <button onclick="deleteEntry('${entry.name}')">Delete</button>
+                </div>
+              `
+            )
+            .join("");
+        } catch (error) {
+          console.error("Failed to fetch leaderboard data:", error);
+          document.getElementById("leaderboard").innerHTML =
+            "<p>Failed to load leaderboard data.</p>";
+        }
+      }
 
-            const result = await response.json();
+      async function deleteEntry(name) {
+        const responseMessage = document.getElementById("responseMessage");
 
-            if (response.ok) {
-              responseMessage.textContent = result.message;
-              responseMessage.style.color = "green";
-              document.getElementById("deleteForm").reset(); // Clear form
-            } else {
-              responseMessage.textContent = `Error: ${result.error}`;
-              responseMessage.style.color = "red";
-            }
-          } catch (error) {
-            console.error("Failed to delete entry:", error);
-            responseMessage.textContent =
-              "An error occurred while trying to delete the entry.";
+        try {
+          const response = await fetch("/.netlify/functions/deleteData", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            responseMessage.textContent = result.message;
+            responseMessage.style.color = "green";
+            fetchLeaderboard(); // Refresh leaderboard
+          } else {
+            responseMessage.textContent = `Error: ${result.error}`;
             responseMessage.style.color = "red";
           }
-        });
+        } catch (error) {
+          console.error("Failed to delete entry:", error);
+          responseMessage.textContent =
+            "An error occurred while trying to delete the entry.";
+          responseMessage.style.color = "red";
+        }
+      }
+
+      // Fetch leaderboard on page load
+      window.onload = fetchLeaderboard;
     </script>
   </body>
 </html>
