@@ -21,16 +21,45 @@
     <div id="leaderboard"></div>
 
     <script>
-      // Store player name in localStorage
+      // Store player name in localStorage and check for duplicate
       document
         .getElementById("nameForm")
-        .addEventListener("submit", function (event) {
+        .addEventListener("submit", async function (event) {
           event.preventDefault(); // Prevent page reload
 
           const playerName = document.getElementById("playerName").value;
-          if (playerName) {
-            localStorage.setItem("playerName", playerName); // Save player name
-            window.location.href = "javascript_game/scriptgame.html"; // Redirect to the game page
+          if (!playerName) return;
+
+          try {
+            // Fetch existing leaderboard data
+            const response = await fetch(
+              `./data.json?cache-bust=${new Date().getTime()}`,
+              {
+                cache: "no-store",
+              }
+            );
+
+            const data = await response.json();
+
+            // Check if the entered name already exists in the leaderboard
+            const nameExists = data.some(
+              (entry) => entry.name.toLowerCase() === playerName.toLowerCase()
+            );
+
+            if (nameExists) {
+              alert(
+                "This name is already taken. Please choose a different name."
+              );
+            } else {
+              // Save player name and redirect
+              localStorage.setItem("playerName", playerName);
+              window.location.href = "javascript_game/scriptgame.html"; // Redirect to the game page
+            }
+          } catch (error) {
+            console.error("Failed to fetch leaderboard data:", error);
+            alert(
+              "An error occurred while checking the leaderboard. Please try again."
+            );
           }
         });
 
@@ -40,14 +69,14 @@
           const response = await fetch(
             `./data.json?cache-bust=${new Date().getTime()}`,
             {
-              cache: "no-store", // Ensures no caching by the browser
+              cache: "no-store",
             }
           );
           const data = await response.json();
 
           // Sort and display top scores
           const sortedData = data
-            .sort((a, b) => b.coins * b.levels - a.coins * a.levels) // Sort by coins in descending order
+            .sort((a, b) => b.coins * b.levels - a.coins * a.levels)
             .slice(0, 5); // Display top 5 players
 
           const leaderboard = document.getElementById("leaderboard");
@@ -69,9 +98,7 @@
       // Fetch leaderboard data on page load
       window.onload = fetchLeaderboard;
 
-      // Fetch and display leaderboard on page load
-      window.onload = fetchLeaderboard;
-
+      // Refresh leaderboard every 5 seconds
       setInterval(fetchLeaderboard, 5000);
     </script>
   </body>

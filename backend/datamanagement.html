@@ -17,13 +17,20 @@
     <p id="responseMessage"></p>
 
     <script>
+      // Fetch leaderboard data from data.json
       async function fetchLeaderboard() {
         try {
+          console.log("Fetching leaderboard...");
           const response = await fetch(
-            `./data.json?cache-bust=${new Date().getTime()}`
+            `/data.json?cache-bust=${new Date().getTime()}`
           );
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
           const data = await response.json();
 
+          // Sort and display top scores
           const sortedData = data
             .sort((a, b) => b.coins * b.levels - a.coins * a.levels)
             .slice(0, 10); // Display top 10 players
@@ -48,6 +55,7 @@
         }
       }
 
+      // Delete entry function
       async function deleteEntry(name) {
         const responseMessage = document.getElementById("responseMessage");
 
