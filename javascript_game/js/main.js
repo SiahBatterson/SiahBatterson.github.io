@@ -276,29 +276,21 @@ function update() {
     return;
   }
 
-  /*if (time_left_to_complete_level > timer.currentTime) {
-    const name = localStorage.getItem("playerName");
-    console.log(`Attempting to save data for ${name}`); // Debugging log
-
-    savePlayerData(name, player.coins, levels); // Save player data
-    console.log("Player data saved, redirecting to index...");
-
-    window.location.href = "../index.html"; // Redirect to leaderboard
-  }*/
-
   // Update the timer
   if (timer.startTime) {
     timer.currentTime = ((Date.now() - timer.startTime) / 1000).toFixed(2); // Update elapsed time
   }
 
-  if (time_left_to_complete_level > timer.currentTime) {
+  if (timer.currentTime > time_left_to_complete_level) {
+    console.log("Time is up! Redirecting to leaderboard...");
     const name = localStorage.getItem("playerName");
-    console.log(`Attempting to save data for ${name}`); // Debugging log
 
+    gamerunning = false; // Stop the game loop
     savePlayerData(name, player.coins, levels); // Save player data
-    console.log("Player data saved, redirecting to index...");
-
-    window.location.href = "../index.html"; // Redirect to leaderboard
+    setTimeout(() => {
+      window.location.href = "../index.html"; // Redirect to leaderboard after saving
+    }, 500); // Small delay to ensure save completes
+    return;
   }
 
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
