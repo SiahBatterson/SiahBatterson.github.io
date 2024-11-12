@@ -64,19 +64,20 @@ let camera = {
   height: canvas_id.height,
 };
 
-function generateRandomMap() {
+function generateRandomMap(rows, cols) {
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
-  // Ensure ground line
+  // Ensure ground line at the bottom of the map
   for (let x = 0; x < cols; x++) {
     map[rows - 1][x] = "#";
   }
 
+  // Introduce platforms with more natural groupings and varied terrain
   for (let y = 2; y < rows - 2; y++) {
     for (let x = 1; x < cols - 4; x++) {
       let rnd_number = Math.random();
 
-      // Create larger ground sections but break them up
+      // Create larger continuous ground sections
       if (rnd_number < 0.15) {
         const groundLength = Math.floor(Math.random() * 5) + 3; // Ground length between 3-7 tiles
         for (let i = 0; i < groundLength; i++) {
@@ -85,31 +86,38 @@ function generateRandomMap() {
           }
         }
 
-        // Introduce variation within the ground section
+        // Add small variation within the block by clearing one tile
         if (Math.random() > 0.5) {
           const gap = Math.floor(Math.random() * (groundLength - 1)) + 1;
-          map[y][x + gap] = "."; // Introduce a gap within the block
+          map[y][x + gap] = ".";
         }
 
-        x += groundLength - 1; // Skip over processed ground section
+        x += groundLength - 1; // Skip forward to prevent overlapping
       } else if (rnd_number >= 0.15 && rnd_number < 0.2) {
         // Create smaller isolated platforms
-        const platformType = Math.floor(Math.random() * 2);
+        const platformType = Math.floor(Math.random() * 3); // Choose between 3 small platform types
         switch (platformType) {
-          case 0: // Small 2x1 platform
+          case 0: // 2x1 platform
             map[y][x] = "#";
             map[y][x + 1] = "#";
             break;
-          case 1: // Elevated 2x1 platform
+          case 1: // 3x1 elevated platform
             if (y - 1 > 0) {
               map[y - 1][x] = "#";
               map[y - 1][x + 1] = "#";
+              map[y - 1][x + 2] = "#";
             }
+            break;
+          case 2: // 2x2 platform
+            map[y][x] = "#";
+            map[y + 1][x] = "#";
+            map[y][x + 1] = "#";
+            map[y + 1][x + 1] = "#";
             break;
         }
       }
 
-      // Fill enclosed air spaces horizontally
+      // Fill enclosed air spaces (surrounded by ground)
       if (
         map[y][x] === "." &&
         map[y - 1][x] === "#" &&
@@ -117,30 +125,56 @@ function generateRandomMap() {
         map[y][x - 1] === "#" &&
         map[y][x + 1] === "#"
       ) {
-        map[y][x] = "#"; // Fill enclosed space
+        map[y][x] = "#";
       }
 
-      // Fill spaces with ground above and below
+      // Fill vertical gaps (spaces between ground above and below)
       if (map[y][x] === "." && map[y - 1][x] === "#" && map[y + 1][x] === "#") {
-        map[y][x] = "#"; // Fill vertical gap
+        map[y][x] = "#";
       }
 
-      // Add controlled collectible placement
+      // Add occasional floating collectible (C)
       if (
         rnd_number > 0.2 &&
         rnd_number < 0.22 &&
-        map[y][x] !== "#" &&
+        map[y][x] === "." &&
         map[y + 1][x] !== "C"
       ) {
-        map[y][x] = "C"; // Place collectible in open space
+        map[y][x] = "C"; // Place collectible
       }
 
-      // Randomized gap to avoid long flat sections
+      // Randomized gap (acts as a challenge to the player)
       if (rnd_number > 0.95) {
-        x += Math.floor(Math.random() * 3) + 1; // Create gaps 1-3 tiles wide
+        x += Math.floor(Math.random() * 3) + 1; // Create gaps with 1-3 tiles
       }
     }
   }
+
+  // Reserve a spawn area (clear space near bottom)
+  const spawnX = 2;
+  const spawnY = rows - 5;
+  for (let y = spawnY; y < spawnY + 3; y++) {
+    for (let x = spawnX; x < spawnX + 3; x++) {
+      map[y][x] = ".";
+    }
+  }
+
+  // Place the player start point
+  map[spawnY + 1][spawnX + 1] = "P";
+
+  // Place a door (or exit) at a random valid platform location
+  let placed = false;
+  while (!placed) {
+    const x = Math.floor(Math.random() * (cols - 2)) + 1;
+    const y = Math.floor(Math.random() * (rows - 5)) + 1;
+    if (map[y][x] === "#" && map[y - 1][x] === ".") {
+      map[y - 1][x] = "@"; // Place door
+      placed = true;
+    }
+  }
+
+  // Convert map to a string representation for display or debugging
+  return map.map((row) => row.join("")).join("\n");
 }
 
 // Parse the ASCII map
