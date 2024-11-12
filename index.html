@@ -37,7 +37,12 @@
       async function fetchLeaderboard() {
         try {
           console.log("Fetching leaderboard");
-          const response = await fetch("./data.json"); // Fetch from your GitHub-hosted file
+          const response = await fetch(
+            `./data.json?cache-bust=${new Date().getTime()}`,
+            {
+              cache: "no-store", // Ensures no caching by the browser
+            }
+          );
           const data = await response.json();
 
           // Sort and display top scores
@@ -67,7 +72,7 @@
       // Fetch and display leaderboard on page load
       window.onload = fetchLeaderboard;
 
-      setInterval(fetchLeaderboard, 1000);
+      setInterval(fetchLeaderboard, 5000);
     </script>
   </body>
 </html>
