@@ -410,12 +410,13 @@ async function savePlayerData(name, coins, levels) {
     const response = await fetch(
       "https://brilliant-fox-2f7955.netlify.app/.netlify/functions/dispatch",
       {
-        // Correct endpoint
+        // Correct function endpoint
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          // Correctly format the body
           client_payload: {
             data: playerData,
           },
@@ -424,7 +425,6 @@ async function savePlayerData(name, coins, levels) {
     );
 
     if (!response.ok) {
-      alert("Failure to save player data");
       throw new Error(`Failed to save data: ${response.statusText}`);
     }
 

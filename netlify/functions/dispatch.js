@@ -5,19 +5,24 @@ exports.handler = async (event) => {
   const BRANCH = "main";
 
   try {
-    console.log("Event body:", event.body); // Log incoming data for debugging
+    // Log the event body
+    console.log("Event body received:", event.body);
+
+    // Parse the incoming event body
+    if (!event.body) {
+      throw new Error("Request body is empty.");
+    }
 
     const parsedBody = JSON.parse(event.body);
 
-    // Ensure client_payload is valid
-    const { client_payload } = parsedBody;
-    if (!client_payload || !client_payload.data) {
+    // Validate client_payload structure
+    if (!parsedBody.client_payload || !parsedBody.client_payload.data) {
       throw new Error("Invalid payload structure. Data not found.");
     }
 
-    const { data } = client_payload;
+    const { data } = parsedBody.client_payload;
 
-    // Fetch existing data.json
+    // Fetch and update the data.json file as before
     const fileResponse = await fetch(
       `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`,
       {
@@ -38,14 +43,14 @@ exports.handler = async (event) => {
       Buffer.from(fileData.content, "base64").toString("utf-8")
     );
 
-    // Append new data
+    // Append the new player data
     content.push(data);
 
     const updatedContent = Buffer.from(
       JSON.stringify(content, null, 2)
     ).toString("base64");
 
-    // Update data.json
+    // Commit the updated data.json back to GitHub
     const updateResponse = await fetch(
       `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
       {
