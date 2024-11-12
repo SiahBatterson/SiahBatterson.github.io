@@ -276,7 +276,7 @@ function update() {
     return;
   }
 
-  if (time_left_to_complete_level > timer.currentTime) {
+  /*if (time_left_to_complete_level > timer.currentTime) {
     const name = localStorage.getItem("playerName");
     console.log(`Attempting to save data for ${name}`); // Debugging log
 
@@ -284,7 +284,7 @@ function update() {
     console.log("Player data saved, redirecting to index...");
 
     window.location.href = "../index.html"; // Redirect to leaderboard
-  }
+  }*/
 
   // Update the timer
   if (timer.startTime) {
