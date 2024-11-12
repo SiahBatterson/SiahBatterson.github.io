@@ -446,7 +446,7 @@ async function savePlayerData(name, coins, levels) {
 function showLevelCompleteMenu() {
   gamerunning = false;
   levels += 1;
-  time_left_to_complete_level = (25 + player.coins) / (levels / 2);
+  time_left_to_complete_level = (25 + player.coins * 2) / (levels / 2);
   time_left_to_complete_level = Math.round(time_left_to_complete_level);
   const menu = document.createElement("div");
   menu.id = "levelCompleteMenu";
