@@ -27,40 +27,40 @@
     <div id="leaderboard"></div>
 
     <script>
-      // Store player name in localStorage and check for duplicate
       document
         .getElementById("nameForm")
         .addEventListener("submit", async function (event) {
-          event.preventDefault(); // Prevent page reload
+          event.preventDefault();
 
-          const playerName = document.getElementById("playerName").value;
+          const playerName = document.getElementById("playerName").value.trim();
           if (!playerName) return;
 
           try {
             // Fetch existing leaderboard data
             const response = await fetch(
               `./data.json?cache-bust=${new Date().getTime()}`,
-              {
-                cache: "no-store",
-              }
+              { cache: "no-store" }
             );
-
             const data = await response.json();
 
-            // Check if the entered name already exists in the leaderboard
-            const nameExists = data.some(
+            // Check if the entered name already exists
+            const existingEntry = data.find(
               (entry) => entry.name.toLowerCase() === playerName.toLowerCase()
             );
 
-            if (nameExists) {
-              alert(
-                "This name is already taken. Please choose a different name."
+            if (existingEntry) {
+              const overwrite = confirm(
+                `The name "${playerName}" already exists. Do you want to continue and overwrite the existing data?`
               );
-            } else {
-              // Save player name and redirect
-              localStorage.setItem("playerName", playerName);
-              window.location.href = "javascript_game/scriptgame.html"; // Redirect to the game page
+              if (!overwrite) {
+                alert("Please enter a different name.");
+                return;
+              }
             }
+
+            // Save player name and redirect
+            localStorage.setItem("playerName", playerName);
+            window.location.href = "javascript_game/scriptgame.html";
           } catch (error) {
             console.error("Failed to fetch leaderboard data:", error);
             alert(
@@ -71,27 +71,22 @@
 
       async function fetchLeaderboard() {
         try {
-          console.log("Fetching leaderboard");
           const response = await fetch(
             `./data.json?cache-bust=${new Date().getTime()}`,
-            {
-              cache: "no-store",
-            }
+            { cache: "no-store" }
           );
           const data = await response.json();
 
-          // Sort and display top scores
           const sortedData = data
             .sort((a, b) => b.coins * b.levels - a.coins * a.levels)
-            .slice(0, 5); // Display top 5 players
+            .slice(0, 5);
 
-          const leaderboard = document.getElementById("leaderboard");
-          leaderboard.innerHTML = sortedData
+          document.getElementById("leaderboard").innerHTML = sortedData
             .map(
               (entry, index) =>
                 `<p>${index + 1}. ${entry.name}: [ score: ${
                   entry.coins + entry.levels
-                }. ] ${entry.coins} coins, ${entry.levels} levels completed</p>`
+                } ] ${entry.coins} coins, ${entry.levels} levels completed</p>`
             )
             .join("");
         } catch (error) {
@@ -101,10 +96,7 @@
         }
       }
 
-      // Fetch leaderboard data on page load
       window.onload = fetchLeaderboard;
-
-      // Refresh leaderboard every 5 seconds
       setInterval(fetchLeaderboard, 5000);
     </script>
   </body>

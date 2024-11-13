@@ -425,19 +425,42 @@ async function savePlayerData(name, coins, levels) {
   const playerData = { name, coins, levels };
 
   try {
-    const response = await fetch("/data.json", {
-      method: "POST", // If your server supports it
+    // Fetch the current leaderboard
+    const response = await fetch(
+      `./data.json?cache-bust=${new Date().getTime()}`,
+      {
+        cache: "no-store",
+      }
+    );
+    const data = await response.json();
+
+    // Find the index of the existing entry if the name matches
+    const existingIndex = data.findIndex(
+      (entry) => entry.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (existingIndex !== -1) {
+      // Overwrite the existing entry
+      data[existingIndex] = playerData;
+    } else {
+      // Add a new entry
+      data.push(playerData);
+    }
+
+    // Save the updated leaderboard back to the server
+    const saveResponse = await fetch("/.netlify/functions/updateData", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(playerData),
+      body: JSON.stringify(data),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to save data");
+    if (!saveResponse.ok) {
+      throw new Error("Failed to save data.");
     }
 
-    console.log("Data saved:", playerData);
+    console.log("Data saved successfully:", playerData);
   } catch (error) {
     console.error("Error saving player data:", error);
   }
