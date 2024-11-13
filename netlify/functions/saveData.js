@@ -9,31 +9,45 @@ exports.handler = async (event) => {
     };
   }
 
-  const filePath = path.resolve(__dirname, "../../data.json");
+  const filePath = path.resolve(__dirname, "../../data.json"); // Relative path to where data.json is stored
 
-  console.log("Attempting to save data to:", filePath); // Log file path
+  console.log("Resolved file path:", filePath);
 
   try {
     const newData = JSON.parse(event.body);
-    console.log("Received data:", newData); // Log incoming data
+    console.log("Received data to save:", newData);
 
-    const data = fs.readFileSync(filePath, "utf-8");
-    const leaderboard = JSON.parse(data);
+    // Check if the file exists
+    if (!fs.existsSync(filePath)) {
+      console.error("File not found at path:", filePath);
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "data.json file not found." }),
+      };
+    }
 
-    leaderboard.push(newData);
+    // Read existing data from the file
+    const currentData = fs.readFileSync(filePath, "utf-8");
+    const leaderboard = JSON.parse(currentData);
 
+    leaderboard.push(newData); // Add the new data
+
+    // Write updated data back to file
     fs.writeFileSync(filePath, JSON.stringify(leaderboard, null, 2));
-    console.log("Data successfully written to file."); // Log success
+    console.log("Data successfully written to:", filePath);
 
     return {
       statusCode: 200,
       body: JSON.stringify({ message: "Data saved successfully." }),
     };
   } catch (error) {
-    console.error("Error:", error.message); // Log specific error
+    console.error("Error during save operation:", error.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to save data." }),
+      body: JSON.stringify({
+        error: "Failed to save data.",
+        details: error.message,
+      }),
     };
   }
 };

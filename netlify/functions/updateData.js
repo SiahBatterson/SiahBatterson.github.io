@@ -1,62 +1,65 @@
-const fetch = require("node-fetch");
-const { GITHUB_TOKEN, REPO, FILE_PATH, BRANCH } = process.env;
+const fs = require("fs");
+const path = require("path");
 
 exports.handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: "Method Not Allowed",
+    };
+  }
+
+  const filePath = path.resolve(__dirname, "../../data.json"); // Adjust as needed
+
+  console.log("Resolved file path:", filePath);
+
   try {
-    const updatedData = JSON.parse(event.body);
+    const updatedEntry = JSON.parse(event.body);
+    console.log("Data to update:", updatedEntry);
 
-    // Fetch current data.json from GitHub
-    const fileResponse = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`,
-      {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-        },
-      }
-    );
-
-    if (!fileResponse.ok) {
-      throw new Error("Failed to fetch file from GitHub.");
+    if (!fs.existsSync(filePath)) {
+      console.error("File not found at path:", filePath);
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "data.json file not found." }),
+      };
     }
 
-    const fileData = await fileResponse.json();
+    // Read existing data
+    const currentData = fs.readFileSync(filePath, "utf-8");
+    const leaderboard = JSON.parse(currentData);
 
-    // Update file content
-    const updatedContent = Buffer.from(
-      JSON.stringify(updatedData, null, 2)
-    ).toString("base64");
-
-    // Commit changes to GitHub
-    const commitResponse = await fetch(
-      `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: "Update leaderboard data",
-          content: updatedContent,
-          sha: fileData.sha,
-        }),
-      }
+    // Find and update the existing entry
+    const existingIndex = leaderboard.findIndex(
+      (entry) => entry.name.toLowerCase() === updatedEntry.name.toLowerCase()
     );
 
-    if (!commitResponse.ok) {
-      throw new Error(
-        `Failed to update file on GitHub. Status: ${commitResponse.status}`
-      );
+    if (existingIndex !== -1) {
+      leaderboard[existingIndex] = updatedEntry; // Update the entry
+      console.log(`Updated entry for ${updatedEntry.name}`);
+    } else {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "Entry not found to update." }),
+      };
     }
+
+    // Write updated data back to file
+    fs.writeFileSync(filePath, JSON.stringify(leaderboard, null, 2));
+    console.log("Data successfully updated in:", filePath);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "Leaderboard updated successfully." }),
+      body: JSON.stringify({ message: "Data updated successfully." }),
     };
   } catch (error) {
+    console.error("Error during update operation:", error.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({
+        error: "Failed to update data.",
+        details: error.message,
+      }),
     };
   }
 };
