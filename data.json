@@ -1,1 +1,7 @@
-[]
+[
+  {
+    "name": "Test Player",
+    "coins": 50,
+    "levels": 3
+  }
+]
