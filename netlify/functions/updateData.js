@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Set this in your Netlify environment
-const REPO = "your-username/your-repo"; // Replace with your GitHub repository
+const REPO = "SiahBatterson/SiahBatterson.github.io"; // Replace with your GitHub repository
 const FILE_PATH = "data.json"; // Path to your data.json file in the repo
 const BRANCH = "main"; // The branch to work with
 
