@@ -432,9 +432,14 @@ async function savePlayerData(name, coins, levels) {
         cache: "no-store",
       }
     );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch leaderboard data.");
+    }
+
     const data = await response.json();
 
-    // Find the index of the existing entry if the name matches
+    // Find the index of the existing entry based on the name (case-insensitive)
     const existingIndex = data.findIndex(
       (entry) => entry.name.toLowerCase() === name.toLowerCase()
     );
@@ -442,9 +447,11 @@ async function savePlayerData(name, coins, levels) {
     if (existingIndex !== -1) {
       // Overwrite the existing entry
       data[existingIndex] = playerData;
+      console.log(`Overwriting data for player: ${name}`);
     } else {
       // Add a new entry
       data.push(playerData);
+      console.log(`Adding new data for player: ${name}`);
     }
 
     // Save the updated leaderboard back to the server
@@ -457,7 +464,7 @@ async function savePlayerData(name, coins, levels) {
     });
 
     if (!saveResponse.ok) {
-      throw new Error("Failed to save data.");
+      throw new Error(`Failed to save data. Status: ${saveResponse.status}`);
     }
 
     console.log("Data saved successfully:", playerData);
