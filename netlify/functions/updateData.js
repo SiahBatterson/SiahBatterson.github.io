@@ -35,20 +35,34 @@ exports.handler = async (event) => {
       Buffer.from(fileData.content, "base64").toString("utf8")
     );
 
-    // 2. Find and update the existing entry
+    // 2. Find the existing entry by name (case-insensitive)
     const existingIndex = currentContent.findIndex(
       (entry) => entry.name.toLowerCase() === updatedEntry.name.toLowerCase()
     );
 
     if (existingIndex !== -1) {
-      // Update the existing entry
-      currentContent[existingIndex] = updatedEntry;
-      console.log(`Updated entry for ${updatedEntry.name}`);
+      // Compare values to decide whether to update
+      const existingEntry = currentContent[existingIndex];
+
+      if (
+        updatedEntry.coins > existingEntry.coins ||
+        updatedEntry.levels > existingEntry.levels
+      ) {
+        // Remove the old entry and add the new one
+        currentContent.splice(existingIndex, 1);
+        currentContent.push(updatedEntry);
+        console.log(`Updated entry for ${updatedEntry.name}`);
+      } else {
+        // If the new entry has lower or equal values, do nothing
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ message: "No update required." }),
+        };
+      }
     } else {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: "Entry not found to update." }),
-      };
+      // If no matching entry, add the new one
+      currentContent.push(updatedEntry);
+      console.log(`Added new entry for ${updatedEntry.name}`);
     }
 
     // 3. Commit the updated content back to GitHub
@@ -65,9 +79,9 @@ exports.handler = async (event) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: "Updated existing leaderboard entry",
+          message: "Update leaderboard entry",
           content: updatedContent,
-          sha: fileData.sha, // Ensure we're updating the correct file version
+          sha: fileData.sha, // Ensure correct version update
         }),
       }
     );
