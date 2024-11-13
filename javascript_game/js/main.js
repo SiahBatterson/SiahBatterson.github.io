@@ -439,37 +439,49 @@ async function savePlayerData(name, coins, levels) {
 
     const data = await response.json();
 
-    // Find the index of the existing entry based on the name (case-insensitive)
+    // Check if the name already exists (case-insensitive)
     const existingIndex = data.findIndex(
       (entry) => entry.name.toLowerCase() === name.toLowerCase()
     );
 
     if (existingIndex !== -1) {
-      // Overwrite the existing entry
+      // Use updateData for overwriting existing entries
+      console.log(`Updating data for existing player: ${name}`);
       data[existingIndex] = playerData;
-      console.log(`Overwriting data for player: ${name}`);
+      await sendToNetlifyFunction("updateData", data);
     } else {
-      // Add a new entry
+      // Use saveData for new entries
+      console.log(`Saving new player data: ${name}`);
       data.push(playerData);
-      console.log(`Adding new data for player: ${name}`);
+      await sendToNetlifyFunction("saveData", data);
     }
 
-    // Save the updated leaderboard back to the server
-    const saveResponse = await fetch("/.netlify/functions/updateData", {
+    console.log("Player data saved or updated successfully.");
+  } catch (error) {
+    console.error("Error saving player data:", error);
+  }
+}
+
+async function sendToNetlifyFunction(functionName, payload) {
+  try {
+    const response = await fetch(`/.netlify/functions/${functionName}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
-    if (!saveResponse.ok) {
-      throw new Error(`Failed to save data. Status: ${saveResponse.status}`);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to call ${functionName}. Status: ${response.status}`
+      );
     }
 
-    console.log("Data saved successfully:", playerData);
+    const result = await response.json();
+    console.log(`${functionName} response:`, result);
   } catch (error) {
-    console.error("Error saving player data:", error);
+    console.error(`Error calling ${functionName}:`, error);
   }
 }
 
