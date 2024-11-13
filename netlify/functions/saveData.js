@@ -1,5 +1,9 @@
-const fs = require("fs");
-const path = require("path");
+const fetch = require("node-fetch");
+
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Ensure this is set in your Netlify environment
+const REPO = "SiahBatterson/SiahBatterson.github.io"; // Replace with your repo
+const FILE_PATH = "data.json"; // Path to the data.json file in your repo
+const BRANCH = "main"; // Branch where data.json is located
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -9,39 +13,64 @@ exports.handler = async (event) => {
     };
   }
 
-  const filePath = path.resolve(__dirname, "../../data.json"); // Relative path to where data.json is stored
-
-  console.log("Resolved file path:", filePath);
-
   try {
     const newData = JSON.parse(event.body);
-    console.log("Received data to save:", newData);
 
-    // Check if the file exists
-    if (!fs.existsSync(filePath)) {
-      console.error("File not found at path:", filePath);
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: "data.json file not found." }),
-      };
+    // 1. Fetch the existing data.json from GitHub
+    const fileResponse = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`,
+      {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+        },
+      }
+    );
+
+    if (!fileResponse.ok) {
+      throw new Error(`Failed to fetch data.json: ${fileResponse.statusText}`);
     }
 
-    // Read existing data from the file
-    const currentData = fs.readFileSync(filePath, "utf-8");
-    const leaderboard = JSON.parse(currentData);
+    const fileData = await fileResponse.json();
+    const currentContent = JSON.parse(
+      Buffer.from(fileData.content, "base64").toString("utf8")
+    );
 
-    leaderboard.push(newData); // Add the new data
+    // 2. Modify the content
+    currentContent.push(newData);
 
-    // Write updated data back to file
-    fs.writeFileSync(filePath, JSON.stringify(leaderboard, null, 2));
-    console.log("Data successfully written to:", filePath);
+    // 3. Update the data.json on GitHub
+    const updatedContent = Buffer.from(
+      JSON.stringify(currentContent, null, 2)
+    ).toString("base64");
+
+    const commitResponse = await fetch(
+      `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: "Add new entry to leaderboard",
+          content: updatedContent,
+          sha: fileData.sha, // Required to indicate you're updating the file
+        }),
+      }
+    );
+
+    if (!commitResponse.ok) {
+      throw new Error(
+        `Failed to update data.json: ${commitResponse.statusText}`
+      );
+    }
 
     return {
       statusCode: 200,
       body: JSON.stringify({ message: "Data saved successfully." }),
     };
   } catch (error) {
-    console.error("Error during save operation:", error.message);
+    console.error("Error:", error.message);
     return {
       statusCode: 500,
       body: JSON.stringify({
