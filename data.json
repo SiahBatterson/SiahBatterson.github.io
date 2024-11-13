@@ -1,7 +1,7 @@
 [
   {
     "name": "Test Player",
-    "coins": 50,
-    "levels": 3
+    "coins": 100,
+    "levels": 5
   }
 ]
