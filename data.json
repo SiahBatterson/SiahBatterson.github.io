@@ -3,5 +3,12 @@
     "name": "Test Player",
     "coins": 50,
     "levels": 3
-  }
+  },
+  [
+    {
+      "name": "Test Player",
+      "coins": 100,
+      "levels": 10
+    }
+  ]
 ]
