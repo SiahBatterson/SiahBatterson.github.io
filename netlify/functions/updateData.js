@@ -1,9 +1,9 @@
 const fetch = require("node-fetch");
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Ensure this is set in your Netlify environment
-const REPO = "SiahBatterson/SiahBatterson.github.io"; // Replace with your repo
-const FILE_PATH = "data.json"; // Path to the data.json file in your repo
-const BRANCH = "main"; // Branch where data.json is located
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Set this in your Netlify environment
+const REPO = "your-username/your-repo"; // Replace with your GitHub repository
+const FILE_PATH = "data.json"; // Path to your data.json file in the repo
+const BRANCH = "main"; // The branch to work with
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -14,7 +14,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const newData = JSON.parse(event.body);
+    const updatedEntry = JSON.parse(event.body);
 
     // 1. Fetch the existing data.json from GitHub
     const fileResponse = await fetch(
@@ -35,10 +35,23 @@ exports.handler = async (event) => {
       Buffer.from(fileData.content, "base64").toString("utf8")
     );
 
-    // 2. Modify the content
-    currentContent.push(newData);
+    // 2. Find and update the existing entry
+    const existingIndex = currentContent.findIndex(
+      (entry) => entry.name.toLowerCase() === updatedEntry.name.toLowerCase()
+    );
 
-    // 3. Update the data.json on GitHub
+    if (existingIndex !== -1) {
+      // Update the existing entry
+      currentContent[existingIndex] = updatedEntry;
+      console.log(`Updated entry for ${updatedEntry.name}`);
+    } else {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "Entry not found to update." }),
+      };
+    }
+
+    // 3. Commit the updated content back to GitHub
     const updatedContent = Buffer.from(
       JSON.stringify(currentContent, null, 2)
     ).toString("base64");
@@ -52,9 +65,9 @@ exports.handler = async (event) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: "Add new entry to leaderboard",
+          message: "Updated existing leaderboard entry",
           content: updatedContent,
-          sha: fileData.sha, // Required to indicate you're updating the file
+          sha: fileData.sha, // Ensure we're updating the correct file version
         }),
       }
     );
@@ -67,14 +80,14 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "Data saved successfully." }),
+      body: JSON.stringify({ message: "Data updated successfully." }),
     };
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error("Error during update operation:", error.message);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: "Failed to save data.",
+        error: "Failed to update data.",
         details: error.message,
       }),
     };
