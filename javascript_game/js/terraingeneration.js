@@ -1,4 +1,4 @@
-export function generateRandomMap() {
+export function generateRandomMap(rows, cols) {
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
   // Ensure ground line at the bottom of the map
