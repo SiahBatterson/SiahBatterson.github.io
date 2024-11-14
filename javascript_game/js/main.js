@@ -103,6 +103,7 @@ function parseMap(map) {
           y: y * tileSize,
           width: tileSize / 2,
           height: tileSize / 2,
+          texture: top,
         });
       } else if (char === "%") {
         platforms.push({
