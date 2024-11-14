@@ -1,4 +1,4 @@
-function generateRandomMap() {
+export function generateRandomMap() {
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
   // Ensure ground line at the bottom of the map
@@ -106,5 +106,3 @@ function generateRandomMap() {
     return map.map((row) => row.join("")).join("\n");
   }
 }
-
-module.exports = { generateRandomMap };
