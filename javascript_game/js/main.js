@@ -490,6 +490,7 @@ function checkLevelCompletion() {
 
 // Initialize
 const initialMap = generateRandomMap(rows, cols);
+console.log("Generated Map:\n" + initialMap);
 timer.startTime = Date.now();
 parseMap(initialMap);
 update();
