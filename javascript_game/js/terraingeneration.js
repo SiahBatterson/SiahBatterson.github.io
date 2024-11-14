@@ -57,51 +57,47 @@ export function generateRandomMap(rows, cols) {
       }
 
       if (map[y][x] === "X" && map[y + 1][x] === "#") {
-        map[y][x] = "%"; // Fill gap}
+        map[y][x] = "%";
+      }
 
-        // Fill unreachable gaps vertically if needed
-        if (
-          map[y][x] === "." &&
-          map[y - 1][x] === "#" &&
-          map[y + 1][x] === "#"
-        ) {
-          map[y][x] = "#"; // Fill gap
-        }
+      // Fill unreachable gaps vertically if needed
+      if (map[y][x] === "." && map[y - 1][x] === "#" && map[y + 1][x] === "#") {
+        map[y][x] = "#"; // Fill gap
+      }
 
-        // Add occasional collectible
-        if (rnd_number > 0.2 && rnd_number < 0.22) {
-          map[y][x] = "C";
-        }
+      // Add occasional collectible
+      if (rnd_number > 0.2 && rnd_number < 0.22) {
+        map[y][x] = "C";
+      }
 
-        // Ensure small gaps in flat levels
-        if (rnd_number > 0.85) {
-          x += Math.floor(Math.random() * 2) + 1; // Break platform gaps
-          consecutivePlatforms = 0;
-        }
+      // Ensure small gaps in flat levels
+      if (rnd_number > 0.85) {
+        x += Math.floor(Math.random() * 2) + 1; // Break platform gaps
+        consecutivePlatforms = 0;
       }
     }
-
-    // Guarantee spawn area (always clear)
-    const spawnX = 2;
-    const spawnY = rows - 5;
-    for (let y = spawnY; y < spawnY + 3; y++) {
-      for (let x = spawnX; x < spawnX + 3; x++) {
-        map[y][x] = ".";
-      }
-    }
-
-    map[spawnY + 1][spawnX + 1] = "P"; // Set spawn point
-
-    // Ensure a reachable door placement at the top of a ground block
-    let placed = false;
-    while (!placed) {
-      const x = Math.floor(Math.random() * (cols - 2)) + 1;
-      const y = Math.floor(Math.random() * (rows - 5)) + 1;
-      if (map[y][x] === "#" && map[y - 1][x] === ".") {
-        map[y - 1][x] = "@"; // Place door
-        placed = true;
-      }
-    }
-    return map.map((row) => row.join("")).join("\n");
   }
+
+  // Guarantee spawn area (always clear)
+  const spawnX = 2;
+  const spawnY = rows - 5;
+  for (let y = spawnY; y < spawnY + 3; y++) {
+    for (let x = spawnX; x < spawnX + 3; x++) {
+      map[y][x] = ".";
+    }
+  }
+
+  map[spawnY + 1][spawnX + 1] = "P"; // Set spawn point
+
+  // Ensure a reachable door placement at the top of a ground block
+  let placed = false;
+  while (!placed) {
+    const x = Math.floor(Math.random() * (cols - 2)) + 1;
+    const y = Math.floor(Math.random() * (rows - 5)) + 1;
+    if (map[y][x] === "#" && map[y - 1][x] === ".") {
+      map[y - 1][x] = "@"; // Place door
+      placed = true;
+    }
+  }
+  return map.map((row) => row.join("")).join("\n");
 }
