@@ -343,7 +343,7 @@ function resetGame() {
   timer.startTime = Date.now(); // Record the start time
   coins = []; // Reset coin array
   platforms = []; // Reset platforms
-  const newMap = generateRandomMap_();
+  const newMap = generateRandomMap(rows, cols);
   parseMap(newMap);
   update();
 }
@@ -489,7 +489,7 @@ function checkLevelCompletion() {
 }
 
 // Initialize
-const initialMap = generateRandomMap();
+const initialMap = generateRandomMap(rows, cols);
 timer.startTime = Date.now();
 parseMap(initialMap);
 update();
