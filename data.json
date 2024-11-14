@@ -3,5 +3,10 @@
     "name": "Josiah",
     "coins": 23,
     "levels": 6
+  },
+  {
+    "name": "Siah",
+    "coins": 3,
+    "levels": 1
   }
 ]
