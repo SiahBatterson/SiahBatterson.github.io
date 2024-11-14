@@ -1,7 +1,7 @@
 const canvas_id = document.getElementById("canvas");
 const ctx = canvas_id.getContext("2d");
 
-import { generateRandomMap } from "./terrainGeneration.js";
+import { generateRandomMap } from "./terraingeneration.js";
 
 // Set canvas size
 canvas_id.width = 1280;
