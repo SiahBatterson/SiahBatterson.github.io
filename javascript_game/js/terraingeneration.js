@@ -102,7 +102,6 @@ export function generateRandomMap(rows, cols) {
         placed = true;
       }
     }
-    console.log("Generated Map:\n" + initialMap);
     return map.map((row) => row.join("")).join("\n");
   }
 }
