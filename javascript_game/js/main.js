@@ -496,6 +496,7 @@ function checkLevelCompletion() {
 }
 
 function drawLevelCompleteMenu() {
+  gamerunning = false;
   const extraTimeFromCoins = player.coins / 2; // Example: 2 seconds per coin
   let leftoverTime = Math.max(
     0,
@@ -511,7 +512,7 @@ function drawLevelCompleteMenu() {
 
   // Draw menu box
   ctx.fillStyle = "#FFF";
-  ctx.fillRect(canvas_id.width / 2 - 200, canvas_id.height / 2 - 150, 400, 300);
+  ctx.fillRect(canvas_id.width / 2 - 200, canvas_id.height / 2 - 130, 400, 300);
 
   // Draw menu text
   ctx.fillStyle = "#000";
