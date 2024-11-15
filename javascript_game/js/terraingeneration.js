@@ -1,7 +1,7 @@
 export function generateRandomMap(rows, cols, config = {}) {
   const {
-    maxConsecutivePlatforms = 6,
-    minVerticalSpacing = 3,
+    maxConsecutivePlatforms = 5,
+    minVerticalSpacing = 2,
     specialTileChance = 0.05,
   } = config;
 
