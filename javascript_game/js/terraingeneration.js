@@ -3,6 +3,7 @@ export function generateRandomMap(rows, cols, config = {}) {
     maxConsecutivePlatforms = 5,
     minVerticalSpacing = 2,
     specialTileChance = 0.04,
+    coinChance = 0.1, // Add a configurable coin chance
   } = config;
 
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
@@ -42,6 +43,11 @@ export function generateRandomMap(rows, cols, config = {}) {
             map[y + 1][x + i] = "%"; // Ground
             map[y][x + i] = "#"; // Grass
             consecutivePlatforms++;
+
+            // Randomly place a coin on top of the grass tile
+            if (Math.random() < coinChance) {
+              map[y - 1][x + i] = "C"; // Coin appears above grass
+            }
           }
         }
         x += groundLength - 1;
