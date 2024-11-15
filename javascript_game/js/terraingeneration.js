@@ -2,7 +2,7 @@ export function generateRandomMap(rows, cols, config = {}) {
   const {
     maxConsecutivePlatforms = 5,
     minVerticalSpacing = 2,
-    specialTileChance = 0.05,
+    specialTileChance = 0.04,
   } = config;
 
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
@@ -30,10 +30,11 @@ export function generateRandomMap(rows, cols, config = {}) {
         continue;
       }
 
+      // Standard horizontal platform
       if (rnd_number < 0.12 && !previousRowHasTop[x]) {
         const groundLength = Math.floor(Math.random() * 4) + 2;
         for (let i = 0; i < groundLength; i++) {
-          if (x + i < cols - 2) {
+          if (x + i < cols - 2 && map[y][x + i] === ".") {
             map[y + 1][x + i] = "%";
             map[y][x + i] = "#";
             consecutivePlatforms++;
@@ -50,6 +51,11 @@ export function generateRandomMap(rows, cols, config = {}) {
       // Add special tile randomly
       if (Math.random() < specialTileChance && map[y + 1][x] !== "#") {
         map[y][x] = "G"; // Special tile
+      }
+
+      // Grass stacking prevention
+      if (map[y][x] === "#" && map[y - 1][x] === "#") {
+        map[y][x] = "."; // Remove stacked grass tile
       }
 
       previousRowHasTop[x] = map[y][x] === "#";
