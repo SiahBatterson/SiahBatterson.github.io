@@ -35,8 +35,8 @@ export function generateRandomMap(rows, cols, config = {}) {
         const groundLength = Math.floor(Math.random() * 4) + 2;
         for (let i = 0; i < groundLength; i++) {
           if (x + i < cols - 2 && map[y][x + i] === ".") {
-            map[y + 1][x + i] = "%";
-            map[y][x + i] = "#";
+            map[y + 1][x + i] = "%"; // Ground
+            map[y][x + i] = "#"; // Grass
             consecutivePlatforms++;
           }
         }
@@ -54,23 +54,26 @@ export function generateRandomMap(rows, cols, config = {}) {
       }
 
       // Grass stacking prevention
-      if (map[y][x] === "#" && map[y - 1][x] === "#") {
+      if (map[y][x] === "#" && map[y - 1]?.[x] === "#") {
         map[y][x] = "."; // Remove stacked grass tile
       }
 
-      previousRowHasTop[x] = map[y][x] === "#";
+      // Ensure consistent top-ground logic
+      if (map[y][x] === "#" && map[y + 1]?.[x] === "%") {
+        continue; // Valid grass-ground pair, skip
+      }
+
+      // Correct potential misalignment
+      if (map[y][x] === "#" && map[y + 1]?.[x] !== "%") {
+        map[y + 1][x] = "%"; // Ensure ground below grass
+      }
 
       if (rnd_number > 0.85) {
         x += Math.floor(Math.random() * 2) + 1;
         consecutivePlatforms = 0;
       }
 
-      if (map[y][x] === "#" && map[y + 1][x] === "%") {
-        map[y][x] = "%"; // Changed grass to ground
-      }
-      if (map[y][x] === "%" && map[y + 1][x] === ".") {
-        map[y][x] = "#"; // If not grass is present change ground to grass
-      }
+      previousRowHasTop[x] = map[y][x] === "#";
     }
   }
 
@@ -86,29 +89,7 @@ export function generateRandomMap(rows, cols, config = {}) {
   map[spawnY + 1][spawnX + 1] = "P"; // Player spawn point
 
   // Ensure a reachable door placement
-  let placed = false;
-  while (!placed) {
-    const x = Math.floor(Math.random() * (cols - 2)) + 1;
-    const y = Math.floor(Math.random() * (rows - 5)) + 1;
-
-    if (map[y][x] === "#" && map[y - 1][x] === ".") {
-      map[y - 1][x] = "@"; // Place door
-      placed = true;
-
-      // Clear path to door
-      for (let clearY = Math.max(0, y - 3); clearY <= y - 1; clearY++) {
-        for (
-          let clearX = Math.max(0, x - 2);
-          clearX <= Math.min(cols - 1, x + 2);
-          clearX++
-        ) {
-          if (map[clearY][clearX] !== "@") {
-            map[clearY][clearX] = ".";
-          }
-        }
-      }
-    }
-  }
+  placeDoor(map, cols, rows);
 
   return map.map((row) => row.join("")).join("\n");
 }
@@ -144,5 +125,31 @@ function placeRandomPattern(map, x, y) {
         map[y + 1][x + 1] = "%";
       }
       break;
+  }
+}
+
+function placeDoor(map, cols, rows) {
+  let placed = false;
+  while (!placed) {
+    const x = Math.floor(Math.random() * (cols - 2)) + 1;
+    const y = Math.floor(Math.random() * (rows - 5)) + 1;
+
+    if (map[y][x] === "#" && map[y - 1][x] === ".") {
+      map[y - 1][x] = "@"; // Place door
+      placed = true;
+
+      // Clear path to door
+      for (let clearY = Math.max(0, y - 3); clearY <= y - 1; clearY++) {
+        for (
+          let clearX = Math.max(0, x - 2);
+          clearX <= Math.min(cols - 1, x + 2);
+          clearX++
+        ) {
+          if (map[clearY][clearX] !== "@") {
+            map[clearY][clearX] = ".";
+          }
+        }
+      }
+    }
   }
 }
