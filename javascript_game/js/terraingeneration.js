@@ -1,8 +1,8 @@
 export function generateRandomMap(rows, cols, config = {}) {
   const {
-    baseTileChance = 0.1, // Base chance for additional platforms every other row
-    diminishingFactor = 0.02, // Reduced chance for each iteration
-    maxConsecutivePlatforms = 5,
+    baseTileChance = 0.4, // Base chance for additional platforms every other row
+    diminishingFactor = 0.03, // Reduced chance for each iteration
+    maxConsecutivePlatforms = 6,
     minVerticalSpacing = 2,
   } = config;
 
