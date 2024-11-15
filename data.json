@@ -8,5 +8,10 @@
     "name": "Siah",
     "coins": 3,
     "levels": 1
+  },
+  {
+    "name": "Siah",
+    "coins": 0,
+    "levels": 1
   }
 ]
