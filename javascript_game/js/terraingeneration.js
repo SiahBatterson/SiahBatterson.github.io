@@ -57,6 +57,9 @@ export function generateRandomMap(rows, cols, config = {}) {
       if (map[y][x] === "#" && map[y - 1][x] === "#") {
         map[y][x] = "."; // Remove stacked grass tile
       }
+      if (map[y][x] === "#" && map[y + 1][x] === "%") {
+        map[y][x] = "%"; // Changed grass to ground
+      }
 
       previousRowHasTop[x] = map[y][x] === "#";
 
