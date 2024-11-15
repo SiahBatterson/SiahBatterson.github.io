@@ -85,7 +85,7 @@ function parseMap(map) {
           y: y * tileSize,
           width: tileSize,
           height: tileSize,
-          texture: top,
+          texture: "top", // Assign top for default platform texture
         });
       } else if (char === "P") {
         player.x = x * tileSize;
@@ -103,7 +103,6 @@ function parseMap(map) {
           y: y * tileSize,
           width: tileSize / 2,
           height: tileSize / 2,
-          texture: top,
         });
       } else if (char === "%") {
         platforms.push({
@@ -111,7 +110,7 @@ function parseMap(map) {
           y: y * tileSize,
           width: tileSize,
           height: tileSize,
-          texture: ground,
+          texture: "ground", // Different texture for ground
         });
       }
     });
