@@ -37,27 +37,28 @@ export function generateRandomMap(rows, cols) {
           case 0: // 2x1 platform
             map[y][x] = "#";
             map[y][x + 1] = "#";
+            map[y - 1][x] = "%";
+            map[y - 1][x + 1] = "%";
             consecutivePlatforms += 2;
             break;
           case 1: // Elevated 3x1 platform
             if (y - 1 > 0) {
-              map[y - 1][x] = "#";
-              map[y - 1][x + 1] = "#";
-              map[y - 1][x + 2] = "#";
+              map[y][x] = "#";
+              map[y][x + 1] = "#";
+              map[y][x + 2] = "#";
+              map[y - 1][x] = "%";
+              map[y - 1][x + 1] = "%";
+              map[y - 1][x + 2] = "%";
             }
             break;
           case 2: // 2x2 small island
-            map[y][x] = "#";
+            map[y][x] = "%";
             map[y + 1][x] = "#";
-            map[y][x + 1] = "#";
+            map[y][x + 1] = "%";
             map[y + 1][x + 1] = "#";
             consecutivePlatforms += 2;
             break;
         }
-      }
-
-      if (map[y + 1][x] === "#") {
-        map[y][x] = "%";
       }
 
       // Fill unreachable gaps vertically if needed
@@ -74,6 +75,10 @@ export function generateRandomMap(rows, cols) {
       if (rnd_number > 0.85) {
         x += Math.floor(Math.random() * 2) + 1; // Break platform gaps
         consecutivePlatforms = 0;
+      }
+
+      if (map[y + 1][x] === "#") {
+        map[y][x] = "%";
       }
     }
   }
