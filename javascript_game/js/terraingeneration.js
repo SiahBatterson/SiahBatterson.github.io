@@ -1,84 +1,76 @@
 export function generateRandomMap(rows, cols, config = {}) {
   const {
+    baseTileChance = 0.1, // Base chance for additional platforms every other row
+    diminishingFactor = 0.02, // Reduced chance for each iteration
     maxConsecutivePlatforms = 5,
     minVerticalSpacing = 2,
-    specialTileChance = 0.04,
-    coinChance = 0.1, // Add a configurable coin chance
   } = config;
 
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
-  // Ensure ground line at the bottom of the map
+  // Ensure ground line at the bottom
   for (let x = 0; x < cols; x++) {
     map[rows - 1][x] = "#";
+    map[rows - 2][x] = "%"; // Ensure ground below top at the bottom
   }
 
   let previousRowHasTop = Array(cols).fill(false);
 
   // Generate platforms
-  for (let y = minVerticalSpacing; y < rows - 2; y++) {
+  for (let y = minVerticalSpacing; y < rows - 3; y++) {
     let consecutivePlatforms = 0;
+    let platformCount = 0;
+    let tileChance = baseTileChance;
+
+    // Every other row must have a minimum of 4 grid spaces
+    if (y % 2 === 0) {
+      while (
+        platformCount < 4 ||
+        (Math.random() < tileChance && platformCount < cols - 5)
+      ) {
+        let x = Math.floor(Math.random() * (cols - 4)) + 1;
+
+        if (map[y][x] === "." && map[y + 1][x] === ".") {
+          map[y][x] = "#"; // Top
+          map[y + 1][x] = "%"; // Ground
+          platformCount++;
+        }
+        tileChance -= diminishingFactor; // Decrease chance for the next platform
+      }
+    }
 
     for (let x = 1; x < cols - 4; x++) {
       let rnd_number = Math.random();
 
-      if (
-        consecutivePlatforms > maxConsecutivePlatforms &&
-        Math.random() > 0.5
-      ) {
+      if (consecutivePlatforms > maxConsecutivePlatforms && rnd_number > 0.5) {
         map[y][x] = ".";
         consecutivePlatforms = 0;
         continue;
       }
 
-      // Standard horizontal platform
-      if (rnd_number < 0.12 && !previousRowHasTop[x]) {
-        const groundLength = Math.floor(Math.random() * 4) + 2;
-        for (let i = 0; i < groundLength; i++) {
-          if (
-            x + i < cols - 2 &&
-            map[y][x + i] === "." &&
-            map[y + 1][x + i] === "."
-          ) {
-            map[y + 1][x + i] = "%"; // Ground
-            map[y][x + i] = "#"; // Grass
-            consecutivePlatforms++;
-
-            // Randomly place a coin on top of the grass tile
-            if (Math.random() < coinChance) {
-              map[y - 1][x + i] = "C"; // Coin appears above grass
-            }
-          }
-        }
-        x += groundLength - 1;
+      // If there's an empty top tile, fill it with proper platform
+      if (rnd_number < 0.12 && map[y][x] === ".") {
+        map[y][x] = "#";
+        map[y + 1][x] = "%"; // Ensure proper ground
+        consecutivePlatforms++;
       }
 
-      // Place patterns like L-shapes or tall pieces
-      else if (rnd_number >= 0.13 && rnd_number < 0.14) {
-        placeRandomPattern(map, x, y);
-      }
-
-      // Add special tile randomly
-      if (
-        Math.random() < specialTileChance &&
-        map[y + 1][x] !== "#" &&
-        map[y][x] === "."
-      ) {
-        map[y][x] = "G"; // Special tile
-      }
-
-      // Grass stacking prevention
+      // Prevent stacking top tiles
       if (map[y][x] === "#" && map[y - 1]?.[x] === "#") {
-        map[y][x] = "."; // Remove stacked grass tile
+        map[y][x] = ".";
       }
 
-      // Ensure consistent top-ground logic
-      if (map[y][x] === "#" && map[y + 1]?.[x] !== "%") {
-        map[y + 1][x] = "%"; // Ensure ground below grass
+      // Ensure coins are placed on top tiles
+      if (
+        map[y][x] === "#" &&
+        map[y - 1]?.[x] === "." &&
+        Math.random() < 0.15
+      ) {
+        map[y - 1][x] = "C"; // Coin on top
       }
 
       if (rnd_number > 0.85) {
-        x += Math.floor(Math.random() * 2) + 1;
+        x += Math.floor(Math.random() * 2) + 1; // Skip 1-2 tiles for gaps
         consecutivePlatforms = 0;
       }
 
@@ -95,60 +87,12 @@ export function generateRandomMap(rows, cols, config = {}) {
     }
   }
 
-  map[spawnY + 1][spawnX + 1] = "P"; // Player spawn point
+  map[spawnY + 1][spawnX + 1] = "P"; // Player spawn
 
-  // Ensure a reachable door placement
+  // Ensure door placement
   placeDoor(map, cols, rows);
 
   return map.map((row) => row.join("")).join("\n");
-}
-
-// Helper function to place random patterns like L-shaped or tall pieces
-function placeRandomPattern(map, x, y) {
-  const patternType = Math.floor(Math.random() * 3);
-  switch (patternType) {
-    case 0: // L-shape
-      if (
-        y + 2 < map.length &&
-        x + 1 < map[0].length &&
-        map[y + 1][x] === "." &&
-        map[y + 2][x + 1] === "."
-      ) {
-        map[y][x] = "#";
-        map[y + 1][x] = "%";
-        map[y + 2][x] = "%";
-        map[y + 2][x + 1] = "#";
-        map[y + 3][x + 1] = "%";
-      }
-      break;
-
-    case 1: // Tall piece
-      if (
-        y + 3 < map.length &&
-        map[y + 1][x] === "." &&
-        map[y + 3][x] === "."
-      ) {
-        map[y][x] = "#";
-        map[y + 1][x] = "%";
-        map[y + 2][x] = "%";
-        map[y + 3][x] = "%";
-      }
-      break;
-
-    case 2: // Floating small island
-      if (
-        y > 2 &&
-        x + 2 < map[0].length &&
-        map[y][x] === "." &&
-        map[y][x + 2] === "."
-      ) {
-        map[y][x] = "#";
-        map[y][x + 1] = "#";
-        map[y][x + 2] = "#";
-        map[y + 1][x + 1] = "%";
-      }
-      break;
-  }
 }
 
 function placeDoor(map, cols, rows) {
