@@ -34,7 +34,11 @@ export function generateRandomMap(rows, cols, config = {}) {
       if (rnd_number < 0.12 && !previousRowHasTop[x]) {
         const groundLength = Math.floor(Math.random() * 4) + 2;
         for (let i = 0; i < groundLength; i++) {
-          if (x + i < cols - 2 && map[y][x + i] === ".") {
+          if (
+            x + i < cols - 2 &&
+            map[y][x + i] === "." &&
+            map[y + 1][x + i] === "."
+          ) {
             map[y + 1][x + i] = "%"; // Ground
             map[y][x + i] = "#"; // Grass
             consecutivePlatforms++;
@@ -49,7 +53,11 @@ export function generateRandomMap(rows, cols, config = {}) {
       }
 
       // Add special tile randomly
-      if (Math.random() < specialTileChance && map[y + 1][x] !== "#") {
+      if (
+        Math.random() < specialTileChance &&
+        map[y + 1][x] !== "#" &&
+        map[y][x] === "."
+      ) {
         map[y][x] = "G"; // Special tile
       }
 
@@ -59,11 +67,6 @@ export function generateRandomMap(rows, cols, config = {}) {
       }
 
       // Ensure consistent top-ground logic
-      if (map[y][x] === "#" && map[y + 1]?.[x] === "%") {
-        continue; // Valid grass-ground pair, skip
-      }
-
-      // Correct potential misalignment
       if (map[y][x] === "#" && map[y + 1]?.[x] !== "%") {
         map[y + 1][x] = "%"; // Ensure ground below grass
       }
@@ -99,7 +102,12 @@ function placeRandomPattern(map, x, y) {
   const patternType = Math.floor(Math.random() * 3);
   switch (patternType) {
     case 0: // L-shape
-      if (y + 2 < map.length && x + 1 < map[0].length) {
+      if (
+        y + 2 < map.length &&
+        x + 1 < map[0].length &&
+        map[y + 1][x] === "." &&
+        map[y + 2][x + 1] === "."
+      ) {
         map[y][x] = "#";
         map[y + 1][x] = "%";
         map[y + 2][x] = "%";
@@ -109,7 +117,11 @@ function placeRandomPattern(map, x, y) {
       break;
 
     case 1: // Tall piece
-      if (y + 3 < map.length) {
+      if (
+        y + 3 < map.length &&
+        map[y + 1][x] === "." &&
+        map[y + 3][x] === "."
+      ) {
         map[y][x] = "#";
         map[y + 1][x] = "%";
         map[y + 2][x] = "%";
@@ -118,7 +130,12 @@ function placeRandomPattern(map, x, y) {
       break;
 
     case 2: // Floating small island
-      if (y > 2 && x + 2 < map[0].length) {
+      if (
+        y > 2 &&
+        x + 2 < map[0].length &&
+        map[y][x] === "." &&
+        map[y][x + 2] === "."
+      ) {
         map[y][x] = "#";
         map[y][x + 1] = "#";
         map[y][x + 2] = "#";
