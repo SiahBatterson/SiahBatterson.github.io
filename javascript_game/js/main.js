@@ -9,6 +9,7 @@ canvas_id.height = 720;
 const name = localStorage.getItem("playerName");
 let gamerunning = true;
 let levels = 1;
+let addedTime = 0;
 
 // Load textures
 const platformTexture = new Image();
@@ -415,8 +416,10 @@ async function sendToNetlifyFunction(functionName, payload) {
 function showLevelCompleteMenu() {
   gamerunning = false;
   levels += 1;
+  addedTime += Math.abs(time_left_to_complete_level - timer.currentTime);
   time_left_to_complete_level = (25 + player.coins * 2) / (levels / 2);
   time_left_to_complete_level = Math.round(time_left_to_complete_level);
+  time_left_to_complete_level += addedTime / 2;
   const menu = document.createElement("div");
   menu.id = "levelCompleteMenu";
   menu.innerHTML = `

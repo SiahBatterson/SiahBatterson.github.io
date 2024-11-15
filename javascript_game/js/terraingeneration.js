@@ -82,6 +82,8 @@ export function generateRandomMap(rows, cols, config = {}) {
       previousRowHasTop[x] = map[y][x] === "#";
     }
 
+    fillGaps(map, rows, cols);
+
     // Check and convert nested platforms
     checkNestedPlatforms(map, y, cols);
   }
@@ -101,9 +103,9 @@ function determinePlatformLength() {
   const platformChances = {
     3: 0.8,
     2: 0.6,
-    4: 0.6,
-    1: 0.4,
-    5: 0.4,
+    4: 0.7,
+    1: 0.1,
+    5: 0.6,
   };
 
   const randomValue = Math.random();
@@ -182,6 +184,28 @@ function checkNestedPlatforms(map, y, cols) {
       map[y + 3]?.[x] === "%"
     ) {
       map[y + 2][x] = "%"; // Convert nested top to ground
+    }
+  }
+}
+
+function fillGaps(map, rows, cols) {
+  for (let y = 1; y < rows - 1; y++) {
+    for (let x = 1; x < cols - 1; x++) {
+      // Fill single-tile gaps
+      if (map[y][x - 1] === "#" && map[y][x + 1] === "#" && map[y][x] === ".") {
+        map[y][x] = "#"; // Fill with top tile
+        map[y + 1][x] = "%"; // Ensure ground below
+      }
+
+      // Ensure no stacked top tiles; convert upper to ground
+      if (map[y][x] === "#" && map[y - 1][x] === "#") {
+        map[y - 1][x] = "%"; // Convert stacked top tile to ground
+      }
+
+      // Ensure top tile always has ground below
+      if (map[y][x] === "#" && map[y + 1][x] !== "%") {
+        map[y + 1][x] = "%"; // Add ground below top tile
+      }
     }
   }
 }
