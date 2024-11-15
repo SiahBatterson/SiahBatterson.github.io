@@ -24,7 +24,7 @@ export function generateRandomMap(rows, cols) {
 
       // Create platform sections
       if (rnd_number < 0.12) {
-        const groundLength = Math.floor(Math.random() * 3) + 2; // Shorter sections (2-4 tiles)
+        const groundLength = Math.floor(Math.random() * 4) + 2; // Shorter sections (2-4 tiles)
         for (let i = 0; i < groundLength; i++) {
           if (x + i < cols - 2 && map[y][x + i] === ".") {
             map[y + 1][x + i] = "%"; // Ground
