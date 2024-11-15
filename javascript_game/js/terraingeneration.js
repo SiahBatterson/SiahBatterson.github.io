@@ -21,7 +21,7 @@ export function generateRandomMap(rows, cols) {
       }
 
       // Standard horizontal platform
-      if (rnd_number < 0.12) {
+      if (rnd_number < 0.11) {
         const groundLength = Math.floor(Math.random() * 3) + 2; // Shorter sections (2-4 tiles)
         for (let i = 0; i < groundLength; i++) {
           if (x + i < cols - 2 && map[y][x + i] === ".") {
@@ -34,7 +34,7 @@ export function generateRandomMap(rows, cols) {
       }
 
       // Chance to place different platform types
-      else if (rnd_number >= 0.12 && rnd_number < 0.15) {
+      else if (rnd_number >= 0.11 && rnd_number < 0.13) {
         placeRandomPattern(map, x, y);
       }
 
