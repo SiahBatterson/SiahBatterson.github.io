@@ -56,7 +56,7 @@ export function generateRandomMap(rows, cols) {
         }
       }
 
-      if (map[y][x] === "#" && map[y + 1][x] === "#") {
+      if (map[y + 1][x] === "#") {
         map[y][x] = "%";
       }
 
