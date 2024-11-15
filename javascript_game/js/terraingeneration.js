@@ -1,6 +1,6 @@
 export function generateRandomMap(rows, cols, config = {}) {
   const {
-    baseTileChance = 0.3,
+    baseTileChance = 0.5,
     diminishingFactor = 0.05,
     maxConsecutivePlatforms = 5,
     minVerticalSpacing = 2,
@@ -47,6 +47,13 @@ export function generateRandomMap(rows, cols, config = {}) {
         x += platformLength; // Move forward
         tileChance -= diminishingFactor; // Decrease next platform chance
       }
+    }
+
+    for (let y = minVerticalSpacing; y < rows - 3; y++) {
+      // Your platform generation logic...
+
+      // Check and convert nested platforms
+      checkNestedPlatforms(map, y, cols);
     }
 
     for (let x = 1; x < cols - 4; x++) {
@@ -152,6 +159,29 @@ function placeDoor(map, cols, rows) {
           }
         }
       }
+    }
+  }
+}
+
+// Replace nested grass tiles with ground if surrounded by ground
+function checkNestedPlatforms(map, y, cols) {
+  for (let x = 1; x < cols - 1; x++) {
+    if (
+      map[y][x] === "#" &&
+      map[y + 1][x] === "#" &&
+      map[y + 2]?.[x] === "%" // Ground below
+    ) {
+      map[y + 1][x] = "%"; // Convert inner top to ground
+    }
+
+    // Specifically handle sandwich cases: top, ground, top, ground
+    if (
+      map[y][x] === "#" &&
+      map[y + 1]?.[x] === "%" &&
+      map[y + 2]?.[x] === "#" &&
+      map[y + 3]?.[x] === "%"
+    ) {
+      map[y + 2][x] = "%"; // Convert nested top to ground
     }
   }
 }
