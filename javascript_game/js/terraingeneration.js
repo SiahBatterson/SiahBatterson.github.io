@@ -1,4 +1,10 @@
-export function generateRandomMap(rows, cols) {
+export function generateRandomMap(rows, cols, config = {}) {
+  const {
+    maxConsecutivePlatforms = 6,
+    minVerticalSpacing = 3,
+    specialTileChance = 0.05,
+  } = config;
+
   let map = Array.from({ length: rows }, () => Array(cols).fill("."));
 
   // Ensure ground line at the bottom of the map
@@ -6,52 +12,50 @@ export function generateRandomMap(rows, cols) {
     map[rows - 1][x] = "#";
   }
 
+  let previousRowHasTop = Array(cols).fill(false);
+
   // Generate platforms
-  for (let y = 2; y < rows - 2; y++) {
+  for (let y = minVerticalSpacing; y < rows - 2; y++) {
     let consecutivePlatforms = 0;
 
     for (let x = 1; x < cols - 4; x++) {
       let rnd_number = Math.random();
 
-      // Ensure platforms are reachable by breaking long flat sections
-      if (consecutivePlatforms > 6 && Math.random() > 0.5) {
+      if (
+        consecutivePlatforms > maxConsecutivePlatforms &&
+        Math.random() > 0.5
+      ) {
         map[y][x] = ".";
-        consecutivePlatforms = 0; // Reset counter after breaking
+        consecutivePlatforms = 0;
         continue;
       }
 
-      // Standard horizontal platform
-      if (rnd_number < 0.11) {
-        const groundLength = Math.floor(Math.random() * 3) + 2; // Shorter sections (2-4 tiles)
+      if (rnd_number < 0.12 && !previousRowHasTop[x]) {
+        const groundLength = Math.floor(Math.random() * 4) + 2;
         for (let i = 0; i < groundLength; i++) {
-          if (x + i < cols - 2 && map[y][x + i] === ".") {
-            map[y + 1][x + i] = "%"; // Ground
-            map[y][x + i] = "#"; // Grass
+          if (x + i < cols - 2) {
+            map[y + 1][x + i] = "%";
+            map[y][x + i] = "#";
             consecutivePlatforms++;
           }
         }
-        x += groundLength - 1; // Skip processed ground
+        x += groundLength - 1;
       }
 
-      // Chance to place different platform types
-      else if (rnd_number >= 0.11 && rnd_number < 0.13) {
+      // Place patterns like L-shapes or tall pieces
+      else if (rnd_number >= 0.13 && rnd_number < 0.14) {
         placeRandomPattern(map, x, y);
       }
 
-      // Chance to add random grass tile on top of empty space
-      if (Math.random() < 0.1 && map[y][x] === "." && map[y + 1][x] !== "#") {
-        map[y][x] = "#"; // Add a single grass tile
-        map[y + 1][x] = "%"; // Ensure ground below
+      // Add special tile randomly
+      if (Math.random() < specialTileChance && map[y + 1][x] !== "#") {
+        map[y][x] = "G"; // Special tile
       }
 
-      // Add occasional collectible
-      if (rnd_number > 0.2 && rnd_number < 0.22) {
-        map[y][x] = "C";
-      }
+      previousRowHasTop[x] = map[y][x] === "#";
 
-      // Ensure small gaps in flat levels
       if (rnd_number > 0.85) {
-        x += Math.floor(Math.random() * 2) + 1; // Break platform gaps
+        x += Math.floor(Math.random() * 2) + 1;
         consecutivePlatforms = 0;
       }
     }
@@ -66,18 +70,33 @@ export function generateRandomMap(rows, cols) {
     }
   }
 
-  map[spawnY + 1][spawnX + 1] = "P"; // Set spawn point
+  map[spawnY + 1][spawnX + 1] = "P"; // Player spawn point
 
-  // Ensure a reachable door placement at the top of a ground block
+  // Ensure a reachable door placement
   let placed = false;
   while (!placed) {
     const x = Math.floor(Math.random() * (cols - 2)) + 1;
     const y = Math.floor(Math.random() * (rows - 5)) + 1;
+
     if (map[y][x] === "#" && map[y - 1][x] === ".") {
       map[y - 1][x] = "@"; // Place door
       placed = true;
+
+      // Clear path to door
+      for (let clearY = Math.max(0, y - 3); clearY <= y - 1; clearY++) {
+        for (
+          let clearX = Math.max(0, x - 2);
+          clearX <= Math.min(cols - 1, x + 2);
+          clearX++
+        ) {
+          if (map[clearY][clearX] !== "@") {
+            map[clearY][clearX] = ".";
+          }
+        }
+      }
     }
   }
+
   return map.map((row) => row.join("")).join("\n");
 }
 
