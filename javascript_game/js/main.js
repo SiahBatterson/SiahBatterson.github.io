@@ -209,6 +209,7 @@ function checkCoinCollision(player, coin) {
 
 function update() {
   if (!gamerunning) {
+    drawLevelCompleteMenu(); // Redraw menu if game is paused
     return;
   }
 
@@ -414,36 +415,39 @@ async function sendToNetlifyFunction(functionName, payload) {
 }
 
 function showLevelCompleteMenu() {
-  gamerunning = false;
-  levels += 1;
-  addedTime += Math.abs(time_left_to_complete_level - timer.currentTime);
-  time_left_to_complete_level = (25 + player.coins * 2) / (levels / 2);
-  time_left_to_complete_level = Math.round(time_left_to_complete_level);
-  time_left_to_complete_level += addedTime / 2;
-  const menu = document.createElement("div");
-  menu.id = "levelCompleteMenu";
-  menu.innerHTML = `
-      <h2>Level Completed!</h2>
-      <button id="returnHome">Return Home</button>
-      <button id="nextLevel">Next Level</button>
-    `;
+  gamerunning = false; // Stop game loop
+  drawLevelCompleteMenu();
 
-  document.body.appendChild(menu);
+  canvas_id.addEventListener("click", handleMenuClick);
+}
 
-  document.getElementById("returnHome").addEventListener("click", async () => {
-    const name = localStorage.getItem("playerName");
-    console.log(`Attempting to save data for ${name}`); // Debugging log
+function handleMenuClick(e) {
+  const rect = canvas_id.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
 
-    await savePlayerData(name, player.coins, levels); // Save player data
-    console.log("Player data saved, redirecting to index...");
+  // Check if "Return Home" button was clicked
+  if (
+    mouseX >= canvas_id.width / 2 - 150 &&
+    mouseX <= canvas_id.width / 2 + 150 &&
+    mouseY >= canvas_id.height / 2 &&
+    mouseY <= canvas_id.height / 2 + 40
+  ) {
+    canvas_id.removeEventListener("click", handleMenuClick);
+    savePlayerData(localStorage.getItem("playerName"), player.coins, levels);
+    window.location.href = "../index.html"; // Redirect
+  }
 
-    window.location.href = "../index.html"; // Redirect to leaderboard
-  });
-
-  document.getElementById("nextLevel").addEventListener("click", () => {
-    menu.remove(); // Remove menu
-    startNextLevel(); // Start the next level
-  });
+  // Check if "Next Level" button was clicked
+  if (
+    mouseX >= canvas_id.width / 2 - 150 &&
+    mouseX <= canvas_id.width / 2 + 150 &&
+    mouseY >= canvas_id.height / 2 + 60 &&
+    mouseY <= canvas_id.height / 2 + 100
+  ) {
+    canvas_id.removeEventListener("click", handleMenuClick);
+    startNextLevel(); // Start next level
+  }
 }
 
 function startNextLevel() {
@@ -489,6 +493,81 @@ function checkLevelCompletion() {
   ) {
     showLevelCompleteMenu(); // Show level completion menu
   }
+}
+
+function drawLevelCompleteMenu() {
+  const extraTimeFromCoins = player.coins / 2; // Example: 2 seconds per coin
+  let leftoverTime = Math.max(
+    0,
+    time_left_to_complete_level - timer.currentTime
+  );
+  leftoverTime = leftoverTime / 4;
+  leftoverTime = Math.round(leftoverTime, 2);
+  const totalExtraTime = leftoverTime + extraTimeFromCoins;
+
+  // Darken the background
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillRect(0, 0, canvas_id.width, canvas_id.height);
+
+  // Draw menu box
+  ctx.fillStyle = "#FFF";
+  ctx.fillRect(canvas_id.width / 2 - 200, canvas_id.height / 2 - 150, 400, 300);
+
+  // Draw menu text
+  ctx.fillStyle = "#000";
+  ctx.font = "24px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "Level Completed!",
+    canvas_id.width / 2,
+    canvas_id.height / 2 - 100
+  );
+
+  // Blurb text with details
+  ctx.font = "18px Arial";
+  ctx.fillText(
+    `Coins collected: ${player.coins} (+${extraTimeFromCoins}s)`,
+    canvas_id.width / 2,
+    canvas_id.height / 2 - 60
+  );
+  ctx.fillText(
+    `Leftover time: ${leftoverTime.toFixed(2)}s (+${leftoverTime.toFixed(2)}s)`,
+    canvas_id.width / 2,
+    canvas_id.height / 2 - 30
+  );
+  ctx.fillText(
+    `Total time added to next level: ${totalExtraTime.toFixed(2)}s`,
+    canvas_id.width / 2,
+    canvas_id.height / 2
+  );
+
+  // Draw buttons
+  drawButton(
+    "Return Home",
+    canvas_id.width / 2 - 150,
+    canvas_id.height / 2 + 50,
+    300,
+    40
+  );
+  drawButton(
+    "Next Level",
+    canvas_id.width / 2 - 150,
+    canvas_id.height / 2 + 110,
+    300,
+    40
+  );
+
+  time_left_to_complete_level = (25 + totalExtraTime) / 2;
+}
+
+function drawButton(text, x, y, width, height) {
+  ctx.fillStyle = "#007BFF"; // Button background color
+  ctx.fillRect(x, y, width, height);
+
+  ctx.fillStyle = "#FFF"; // Button text color
+  ctx.font = "20px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(text, x + width / 2, y + height / 2 + 7);
 }
 
 // Initialize
