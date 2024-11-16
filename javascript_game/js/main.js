@@ -501,7 +501,7 @@ function checkLevelCompletion() {
 
 function showLevelCompleteMenu() {
   gamerunning = false; // Pause the game loop
-  coinTime = player.coins * 0.5;
+  let coinTime = player.coins * 0.5;
   leftoverTime = addedTime / 4;
   time_left_to_complete_level = 25 / (1 / levels) + (coinTime + leftoverTime);
   drawLevelCompleteMenu(); // Render the menu on the canvas
