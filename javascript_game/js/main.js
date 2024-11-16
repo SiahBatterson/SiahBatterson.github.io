@@ -415,38 +415,41 @@ async function sendToNetlifyFunction(functionName, payload) {
 }
 
 function showLevelCompleteMenu() {
-  gamerunning = false; // Stop game loop
+  gamerunning = false; // Pause the game
   drawLevelCompleteMenu();
 
+  // Temporarily disable game-level event listeners
+  clearCanvasEvents();
+
+  // Re-apply button clicks specific to menu:
   canvas_id.addEventListener("click", handleMenuClick);
 }
 
-function handleMenuClick(e) {
+function handleMenuClick(event) {
   const rect = canvas_id.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
 
-  // Check if "Return Home" button was clicked
   if (
-    mouseX >= canvas_id.width / 2 - 150 &&
-    mouseX <= canvas_id.width / 2 + 150 &&
-    mouseY >= canvas_id.height / 2 &&
-    mouseY <= canvas_id.height / 2 + 40
+    mouseX >= canvas_id.width / 2 - 100 &&
+    mouseX <= canvas_id.width / 2 &&
+    mouseY >= canvas_id.height / 2 + 50 &&
+    mouseY <= canvas_id.height / 2 + 90
   ) {
+    // Return Home
     canvas_id.removeEventListener("click", handleMenuClick);
-    savePlayerData(localStorage.getItem("playerName"), player.coins, levels);
-    window.location.href = "../index.html"; // Redirect
+    returnHome();
   }
 
-  // Check if "Next Level" button was clicked
   if (
-    mouseX >= canvas_id.width / 2 - 150 &&
-    mouseX <= canvas_id.width / 2 + 150 &&
-    mouseY >= canvas_id.height / 2 + 60 &&
-    mouseY <= canvas_id.height / 2 + 100
+    mouseX >= canvas_id.width / 2 + 20 &&
+    mouseX <= canvas_id.width / 2 + 120 &&
+    mouseY >= canvas_id.height / 2 + 50 &&
+    mouseY <= canvas_id.height / 2 + 90
   ) {
+    // Next Level
     canvas_id.removeEventListener("click", handleMenuClick);
-    startNextLevel(); // Start next level
+    startNextLevel();
   }
 }
 
@@ -495,80 +498,83 @@ function checkLevelCompletion() {
   }
 }
 
-function drawLevelCompleteMenu() {
-  gamerunning = false;
-  const extraTimeFromCoins = player.coins / 2; // Example: 2 seconds per coin
-  let leftoverTime = Math.max(
-    0,
-    time_left_to_complete_level - timer.currentTime
-  );
-  leftoverTime = leftoverTime / 4;
-  leftoverTime = Math.round(leftoverTime, 2);
-  const totalExtraTime = leftoverTime + extraTimeFromCoins;
+function showLevelCompleteMenu() {
+  gamerunning = false; // Pause the game loop
+  drawLevelCompleteMenu(); // Render the menu on the canvas
+}
 
-  // Darken the background
+function drawLevelCompleteMenu() {
+  coinTime = player.coins * 0.5;
+  leftoverTime = addedTime / 4;
+  time_left_to_complete_level = 25 / (1 / levels) + (coinTime + leftoverTime);
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, canvas_id.width, canvas_id.height);
 
-  // Draw menu box
-  ctx.fillStyle = "#FFF";
-  ctx.fillRect(canvas_id.width / 2 - 200, canvas_id.height / 2 - 130, 400, 300);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(canvas_id.width / 2 - 150, canvas_id.height / 2 - 100, 300, 200);
 
-  // Draw menu text
-  ctx.fillStyle = "#000";
-  ctx.font = "24px Arial";
+  ctx.fillStyle = "#000000";
+  ctx.font = "20px Arial";
   ctx.textAlign = "center";
   ctx.fillText(
     "Level Completed!",
     canvas_id.width / 2,
-    canvas_id.height / 2 - 100
-  );
-
-  // Blurb text with details
-  ctx.font = "18px Arial";
-  ctx.fillText(
-    `Coins collected: ${player.coins} (+${extraTimeFromCoins}s)`,
-    canvas_id.width / 2,
     canvas_id.height / 2 - 60
   );
+
   ctx.fillText(
-    `Leftover time: ${leftoverTime.toFixed(2)}s (+${leftoverTime.toFixed(2)}s)`,
+    `Coins collected: ${player.coins} (+${(player.coins * 0.5).toFixed(1)}s)`,
     canvas_id.width / 2,
     canvas_id.height / 2 - 30
   );
   ctx.fillText(
-    `Total time added to next level: ${totalExtraTime.toFixed(2)}s`,
+    `Leftover time: ${addedTime.toFixed(1)}s (+${(addedTime / 4).toFixed(1)}s)`,
     canvas_id.width / 2,
     canvas_id.height / 2
   );
+  ctx.fillText(
+    `Total time added to next level: ${(
+      player.coins * 0.5 +
+      addedTime / 4
+    ).toFixed(1)}s`,
+    canvas_id.width / 2,
+    canvas_id.height / 2 + 30
+  );
 
-  // Draw buttons
   drawButton(
     "Return Home",
-    canvas_id.width / 2 - 150,
-    canvas_id.height / 2 + 50,
-    300,
-    40
+    canvas_id.width / 2 - 100,
+    canvas_id.height / 2 + 50
   );
-  drawButton(
-    "Next Level",
-    canvas_id.width / 2 - 150,
-    canvas_id.height / 2 + 110,
-    300,
-    40
-  );
-
-  time_left_to_complete_level = (25 + totalExtraTime) / 2;
+  drawButton("Next Level", canvas_id.width / 2 + 20, canvas_id.height / 2 + 50);
 }
 
-function drawButton(text, x, y, width, height) {
-  ctx.fillStyle = "#007BFF"; // Button background color
-  ctx.fillRect(x, y, width, height);
+function drawButton(label, x, y) {
+  ctx.fillStyle = "#007bff";
+  ctx.fillRect(x - 50, y - 20, 100, 40);
 
-  ctx.fillStyle = "#FFF"; // Button text color
-  ctx.font = "20px Arial";
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "16px Arial";
   ctx.textAlign = "center";
-  ctx.fillText(text, x + width / 2, y + height / 2 + 7);
+  ctx.fillText(label, x, y + 8);
+}
+
+function clearCanvasEvents() {
+  const cloneCanvas = canvas_id.cloneNode(true);
+  canvas_id.parentNode.replaceChild(cloneCanvas, canvas_id);
+}
+
+function returnHome() {
+  savePlayerData(localStorage.getItem("playerName"), player.coins, levels).then(
+    () => {
+      window.location.href = "../index.html"; // Redirect to the home page
+    }
+  );
+}
+
+function startNextLevel() {
+  resetGame();
+  gamerunning = true; // Resume the game
 }
 
 // Initialize
