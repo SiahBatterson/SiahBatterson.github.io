@@ -422,32 +422,38 @@ function showLevelCompleteMenu() {
   // Temporarily disable game-level event listeners
   clearCanvasEvents();
 
-  // Re-apply button clicks specific to menu:
+  // Ensure the listener is not duplicated
+  canvas_id.removeEventListener("click", handleMenuClick);
   canvas_id.addEventListener("click", handleMenuClick);
 }
 
 function handleMenuClick(event) {
   const rect = canvas_id.getBoundingClientRect();
-  const mouseX = event.clientX - rect.left;
-  const mouseY = event.clientY - rect.top;
 
-  // "Return Home" button bounds
+  // Normalize mouse coordinates to match canvas resolution
+  const scaleX = canvas_id.width / rect.width; // Account for canvas scaling
+  const scaleY = canvas_id.height / rect.height;
+
+  const mouseX = (event.clientX - rect.left) * scaleX;
+  const mouseY = (event.clientY - rect.top) * scaleY;
+
+  // Return Home Button
   if (
-    mouseX >= canvas_id.width / 2 - 150 &&
-    mouseX <= canvas_id.width / 2 - 50 &&
-    mouseY >= canvas_id.height / 2 + 50 &&
-    mouseY <= canvas_id.height / 2 + 90
+    mouseX >= canvas_id.width / 2 - 100 &&
+    mouseX <= canvas_id.width / 2 &&
+    mouseY >= canvas_id.height / 2 + 70 - 20 &&
+    mouseY <= canvas_id.height / 2 + 70 + 20
   ) {
     canvas_id.removeEventListener("click", handleMenuClick);
     returnHome();
   }
 
-  // "Next Level" button bounds
+  // Next Level Button
   if (
-    mouseX >= canvas_id.width / 2 + 50 &&
-    mouseX <= canvas_id.width / 2 + 150 &&
-    mouseY >= canvas_id.height / 2 + 50 &&
-    mouseY <= canvas_id.height / 2 + 90
+    mouseX >= canvas_id.width / 2 &&
+    mouseX <= canvas_id.width / 2 + 100 &&
+    mouseY >= canvas_id.height / 2 + 70 - 20 &&
+    mouseY <= canvas_id.height / 2 + 70 + 20
   ) {
     canvas_id.removeEventListener("click", handleMenuClick);
     startNextLevel();
@@ -507,14 +513,14 @@ function showLevelCompleteMenu() {
   drawLevelCompleteMenu(); // Render the menu on the canvas
 }
 
-function drawButton(label, x, y, width, height) {
+function drawButton(label, x, y, width = 100, height = 40) {
   ctx.fillStyle = "#007bff";
-  ctx.fillRect(x, y, width, height); // Draw button
+  ctx.fillRect(x - width / 2, y - height / 2, width, height);
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "16px Arial";
   ctx.textAlign = "center";
-  ctx.fillText(label, x + width / 2, y + height / 2 + 5); // Center label
+  ctx.fillText(label, x, y + 6);
 }
 
 // Update drawLevelCompleteMenu:
