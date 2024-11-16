@@ -513,63 +513,72 @@ function showLevelCompleteMenu() {
   drawLevelCompleteMenu(); // Render the menu on the canvas
 }
 
-function drawButton(label, x, y, width = 100, height = 40) {
-  ctx.fillStyle = "#007bff";
-  ctx.fillRect(x - width / 2, y - height / 2, width, height);
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "16px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText(label, x, y + 6);
-}
-
-// Update drawLevelCompleteMenu:
 function drawLevelCompleteMenu() {
+  const menuX = canvas_id.width / 2 - 150;
+  const menuY = canvas_id.height / 2 - 100;
+
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, canvas_id.width, canvas_id.height);
 
   ctx.fillStyle = "#ffffff";
-  ctx.fillRect(canvas_id.width / 2 - 150, canvas_id.height / 2 - 100, 300, 200);
+  ctx.fillRect(menuX, menuY, 300, 200);
 
   ctx.fillStyle = "#000000";
   ctx.font = "20px Arial";
   ctx.textAlign = "center";
-  ctx.fillText(
-    "Level Completed!",
-    canvas_id.width / 2,
-    canvas_id.height / 2 - 60
-  );
+  ctx.fillText("Level Completed!", canvas_id.width / 2, menuY + 30);
 
   ctx.fillText(
     `Coins collected: ${player.coins} (+${(player.coins * 0.5).toFixed(1)}s)`,
     canvas_id.width / 2,
-    canvas_id.height / 2 - 30
+    menuY + 60
   );
   ctx.fillText(
     `Leftover time: ${addedTime.toFixed(1)}s (+${(addedTime / 4).toFixed(1)}s)`,
     canvas_id.width / 2,
-    canvas_id.height / 2
+    menuY + 90
   );
   ctx.fillText(
-    `Total time added: ${(player.coins * 0.5 + addedTime / 4).toFixed(1)}s`,
+    `Total time added to next level: ${(
+      player.coins * 0.5 +
+      addedTime / 4
+    ).toFixed(1)}s`,
     canvas_id.width / 2,
-    canvas_id.height / 2 + 30
+    menuY + 120
   );
 
-  drawButton(
-    "Return Home",
-    canvas_id.width / 2 - 150,
-    canvas_id.height / 2 + 50,
-    100,
-    40
-  );
-  drawButton(
-    "Next Level",
-    canvas_id.width / 2 + 50,
-    canvas_id.height / 2 + 50,
-    100,
-    40
-  );
+  drawButton("Return Home", menuX + 50, menuY + 150, returnHome);
+  drawButton("Next Level", menuX + 170, menuY + 150, startNextLevel);
+}
+
+function drawButton(label, x, y, onClick) {
+  ctx.fillStyle = "#007bff";
+  ctx.fillRect(x - 50, y - 20, 100, 40);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "16px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(label, x, y + 8);
+
+  // Attach click listener
+  canvas_id.addEventListener("click", function handleClick(event) {
+    const rect = canvas_id.getBoundingClientRect();
+    const scaleX = canvas_id.width / rect.width;
+    const scaleY = canvas_id.height / rect.height;
+
+    const mouseX = (event.clientX - rect.left) * scaleX;
+    const mouseY = (event.clientY - rect.top) * scaleY;
+
+    if (
+      mouseX >= x - 50 &&
+      mouseX <= x + 50 &&
+      mouseY >= y - 20 &&
+      mouseY <= y + 20
+    ) {
+      canvas_id.removeEventListener("click", handleClick);
+      onClick();
+    }
+  });
 }
 
 function clearCanvasEvents() {
