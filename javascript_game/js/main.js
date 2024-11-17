@@ -233,7 +233,11 @@ function update() {
 
   ctx.clearRect(0, 0, canvas_id.width, canvas_id.height);
 
-  player.velocityY += player.gravity;
+  if (!player.grounded) {
+    player.velocityY += player.gravity;
+  } else {
+    player.velocityY = 0; // Prevent accumulation of downward force
+  }
 
   // Horizontal movement
   player.velocityX = 0;
@@ -346,6 +350,12 @@ function resetGame() {
   timer.startTime = Date.now(); // Record the start time
   coins = []; // Reset coin array
   platforms = []; // Reset platforms
+  player.velocityX = 0; // Reset horizontal velocity
+  player.velocityY = 0; // Reset vertical velocity
+  player.grounded = false; // Ensure grounded status is reset
+  player.onWall = false; // Reset wall state
+  player.wallJumpDirection = 0; // Reset wall jump direction
+
   const newMap = generateRandomMap(rows, cols);
   parseMap(newMap);
   update();
