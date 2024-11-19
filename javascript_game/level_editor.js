@@ -55,21 +55,6 @@ function drawGrid() {
     }
   }
 
-  // Grid lines
-  ctx.strokeStyle = "#ccc";
-  for (let x = 0; x <= gridWidth * tileSize; x += tileSize) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, gridHeight * tileSize);
-    ctx.stroke();
-  }
-  for (let y = 0; y <= gridHeight * tileSize; y += tileSize) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(gridWidth * tileSize, y);
-    ctx.stroke();
-  }
-
   ctx.restore();
 }
 
@@ -94,33 +79,15 @@ canvas.addEventListener("mousedown", (e) => {
   const rect = canvas.getBoundingClientRect();
   const x = Math.floor((e.clientX - rect.left - offsetX) / (tileSize * zoom));
   const y = Math.floor((e.clientY - rect.top - offsetY) / (tileSize * zoom));
-
-  if (e.button === 2) {
-    isMouseDown = true;
-    lastMousePos = { x: e.clientX, y: e.clientY };
-  } else {
-    handleTilePlacement(x, y);
-  }
-});
-
-canvas.addEventListener("mousemove", (e) => {
-  if (isMouseDown && e.button === 2) {
-    offsetX += (e.clientX - lastMousePos.x) / zoom;
-    offsetY += (e.clientY - lastMousePos.y) / zoom;
-    lastMousePos = { x: e.clientX, y: e.clientY };
-    drawGrid();
-  }
-});
-
-canvas.addEventListener("mouseup", () => {
-  isMouseDown = false;
+  handleTilePlacement(x, y);
 });
 
 canvas.addEventListener("wheel", (e) => {
   const zoomIntensity = 0.1;
-  if (e.deltaY < 0) zoom = Math.min(2, zoom + zoomIntensity);
-  else zoom = Math.max(0.5, zoom - zoomIntensity);
-
+  zoom =
+    e.deltaY < 0
+      ? Math.min(2, zoom + zoomIntensity)
+      : Math.max(0.5, zoom - zoomIntensity);
   drawGrid();
 });
 
@@ -132,23 +99,35 @@ function handleTilePlacement(x, y) {
   }
 }
 
-// Convert the grid to an ASCII map
+// Export to ASCII
 function exportToASCII() {
-  let asciiMap = "";
-  for (let row of levelData) {
-    asciiMap += row.join("") + "\n";
-  }
-  return asciiMap;
+  return levelData.map((row) => row.join("")).join("\n");
 }
 
-import { saveData } from "./dispatch.js"; // Import save function
-
+// Save Level Functionality
 document.getElementById("save-level").addEventListener("click", () => {
-  const asciiMap = exportToASCII(); // Convert the grid to ASCII
-  const level = { name: `Level_${Date.now()}`, data: asciiMap };
-
-  saveData("levels_data.json", level);
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("save-popup").style.display = "block";
 });
+
+document.getElementById("cancel-save").addEventListener("click", () => {
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("save-popup").style.display = "none";
+});
+
+document.getElementById("confirm-save").addEventListener("click", () => {
+  const levelName = document.getElementById("level-name-input").value.trim();
+  if (levelName) {
+    const asciiMap = exportToASCII();
+    const level = { name: levelName, data: asciiMap };
+    saveData("levels_data.json", level); // Save to levels_data.json
+  }
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("save-popup").style.display = "none";
+});
+
+import { saveData } from "./dispatch.js"; // Assume this handles JSON saving
+
 // Initialize grid and draw it
 loadTextures();
 initializeGrid();
