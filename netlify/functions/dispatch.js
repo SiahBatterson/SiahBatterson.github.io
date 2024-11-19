@@ -86,3 +86,30 @@ exports.handler = async (event) => {
     };
   }
 };
+
+export function saveData(fileName, data) {
+  fetch(fileName)
+    .then((response) => response.json())
+    .then((existingData) => {
+      existingData.push(data);
+      const blob = new Blob([JSON.stringify(existingData, null, 2)], {
+        type: "application/json",
+      });
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
+    })
+    .catch(() => {
+      // If file doesn't exist, start a new array
+      const blob = new Blob([JSON.stringify([data], null, 2)], {
+        type: "application/json",
+      });
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
+    });
+}

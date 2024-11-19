@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Level Editor</title>
+    <link rel="stylesheet" href="css/editor_styles.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #editor-container {
+        display: flex;
+        gap: 10px;
+      }
+
+      #editor-tools {
+        width: 200px;
+        background-color: #f4f4f4;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+
+      #tile-palette {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .palette-item {
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        border: 1px solid #ddd;
+      }
+
+      .palette-item:hover {
+        background-color: #eee;
+      }
+
+      #editor-canvas {
+        border: 1px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="../index.html">Home</a>
+    </nav>
+
+    <div id="editor-container">
+      <div id="editor-tools">
+        <h3>Tools</h3>
+        <button id="save-level">Save</button>
+        <button id="load-level">Load</button>
+        <button id="erase-mode">Erase Mode: OFF</button>
+        <input type="file" id="load-input" style="display: none" />
+        <h4>Tile Palette</h4>
+        <div id="tile-palette">
+          <div
+            class="palette-item"
+            data-tile="1"
+            style="background-color: green"
+          >
+            Ground
+          </div>
+          <div
+            class="palette-item"
+            data-tile="2"
+            style="background-color: brown"
+          >
+            Dirt
+          </div>
+          <div
+            class="palette-item"
+            data-tile="3"
+            style="background-color: gold"
+          >
+            Coin
+          </div>
+          <div
+            class="palette-item"
+            data-tile="4"
+            style="background-color: gray"
+          >
+            Door
+          </div>
+          <div class="palette-item" data-tile="5" style="background-color: red">
+            Spike
+          </div>
+          <div
+            class="palette-item"
+            data-tile="6"
+            style="background-color: lightblue"
+          >
+            Background
+          </div>
+        </div>
+      </div>
+      <canvas id="editor-canvas" width="800" height="600"></canvas>
+    </div>
+
+    <script src="level_editor.js" defer></script>
+  </body>
+</html>

@@ -11,23 +11,29 @@ let gamerunning = true;
 let levels = 1;
 let addedTime = 0;
 
-// Load textures
 const platformTexture = new Image();
-platformTexture.src = "textures/platform.png"; // Path to your platform texture
+platformTexture.src = "textures/platform.png";
 
 const groundTexture = new Image();
 groundTexture.src = "textures/ground.png";
 
 const playerTexture = new Image();
-playerTexture.src = "textures/player.png"; // Path to your player texture
+playerTexture.src = "textures/player.png";
 
 const coinTexture = new Image();
-coinTexture.src = "textures/coin.png"; // Path to your coin texture
+coinTexture.src = "textures/coin.png";
 
 const doorTexture = new Image();
-doorTexture.src = "textures/door.png"; // Path to your door texture
+doorTexture.src = "textures/door.png";
+
+const spikeTexture = new Image();
+spikeTexture.src = "textures/spike.png";
+
+const backgroundTexture = new Image();
+backgroundTexture.src = "textures/background.png"; // New background texture
 
 let time_left_to_complete_level = 25;
+let initialMap = "";
 
 let timer = {
   startTime: null, // Record the time when the level starts
@@ -74,47 +80,124 @@ function generateRandomMap_() {
   return generateRandomMap();
 }
 
+async function loadLevelFromJSON(fileName) {
+  try {
+    // Try fetching from server
+    const response = await fetch(fileName);
+    if (!response.ok)
+      throw new Error(`Failed to fetch ${fileName} from server`);
+
+    const levels = await response.json();
+    processLoadedLevels(levels);
+  } catch (error) {
+    console.warn("Server fetch failed, using hardcoded ASCII map:", error);
+
+    // Hardcoded fallback ASCII map
+    const hardcodedLevels = [
+      {
+        "Level name": "Sample",
+        ascii: `
+          BBBBBBBBBBBBBBBBBBBBBBBBB
+          B##   C     ##   P     B
+          B#S   %     C@   %%    B
+          B                  S   B
+          BBBBBBBBBBBBBBBBBBBBBBBB
+        `,
+      },
+    ];
+
+    processLoadedLevels(hardcodedLevels);
+  }
+}
+
+function processLoadedLevels(levels) {
+  const selectedLevel = levels.find(
+    (level) => level["Level name"] === "Sample"
+  );
+  if (selectedLevel) {
+    console.log("Selected level:", selectedLevel["Level name"]);
+    initialMap = selectedLevel.ascii;
+    parseMap(initialMap);
+    update();
+  } else {
+    console.error("Level not found");
+  }
+}
+
 function parseMap(map) {
   platforms = [];
   coins = [];
+  door = null;
+
   const rows = map.trim().split("\n");
+
   rows.forEach((row, y) => {
-    [...row].forEach((char, x) => {
-      if (char === "#") {
-        platforms.push({
-          x: x * tileSize,
-          y: y * tileSize,
-          width: tileSize,
-          height: tileSize,
-          texture: "top", // Assign top for default platform texture
-        });
-      } else if (char === "P") {
-        player.x = x * tileSize;
-        player.y = y * tileSize;
-      } else if (char === "@") {
-        door = {
-          x: x * tileSize,
-          y: y * tileSize,
-          width: tileSize,
-          height: tileSize,
-        };
-      } else if (char === "C") {
-        coins.push({
-          x: x * tileSize,
-          y: y * tileSize,
-          width: tileSize / 2,
-          height: tileSize / 2,
-        });
-      } else if (char === "%") {
-        platforms.push({
-          x: x * tileSize,
-          y: y * tileSize,
-          width: tileSize,
-          height: tileSize,
-          texture: "ground", // Different texture for ground
-        });
-      }
-    });
+    row
+      .trim()
+      .split("")
+      .forEach((char, x) => {
+        switch (char) {
+          case "#":
+            platforms.push({
+              x: x * tileSize,
+              y: y * tileSize,
+              width: tileSize,
+              height: tileSize,
+              texture: "top",
+            });
+            break;
+          case "%":
+            platforms.push({
+              x: x * tileSize,
+              y: y * tileSize,
+              width: tileSize,
+              height: tileSize,
+              texture: "ground",
+            });
+            break;
+          case "P":
+            player.x = x * tileSize;
+            player.y = y * tileSize;
+            break;
+          case "@":
+            door = {
+              x: x * tileSize,
+              y: y * tileSize,
+              width: tileSize,
+              height: tileSize,
+            };
+            break;
+          case "C":
+            coins.push({
+              x: x * tileSize + tileSize / 4,
+              y: y * tileSize + tileSize / 4,
+              width: tileSize / 2,
+              height: tileSize / 2,
+            });
+            break;
+          case "S":
+            platforms.push({
+              x: x * tileSize,
+              y: y * tileSize,
+              width: tileSize,
+              height: tileSize,
+              texture: "spike",
+              isHazard: true,
+            });
+            break;
+          case "B":
+            platforms.push({
+              x: x * tileSize,
+              y: y * tileSize,
+              width: tileSize,
+              height: tileSize,
+              texture: "background",
+            });
+            break;
+          default:
+            break;
+        }
+      });
   });
 }
 
@@ -160,6 +243,11 @@ function resolveCollisions() {
 
   platforms.forEach((platform) => {
     if (checkCollision(player, platform)) {
+      if (platform.isHazard) {
+        spike(); // Call the spike function for spike collisions
+        return;
+      }
+
       const dx1 = platform.x - (player.x + player.width); // Distance to platform's left
       const dx2 = platform.x + platform.width - player.x; // Distance to platform's right
       const dy1 = platform.y - (player.y + player.height); // Distance to platform's top
@@ -196,6 +284,11 @@ function resolveCollisions() {
       }
     }
   });
+}
+
+function spike() {
+  console.log("Player hit a spike!");
+  // Implement your custom spike behavior here
 }
 
 function checkCoinCollision(player, coin) {
@@ -275,28 +368,28 @@ function update() {
 }
 
 function drawScene() {
-  // Draw platforms with texture
   platforms.forEach((platform) => {
-    if (platform.texture == "top") {
-      ctx.drawImage(
-        platformTexture,
-        platform.x - camera.x,
-        platform.y - camera.y,
-        platform.width,
-        platform.height
-      );
-    } else {
-      ctx.drawImage(
-        groundTexture,
-        platform.x - camera.x,
-        platform.y - camera.y,
-        platform.width,
-        platform.height
-      );
+    let texture;
+    if (platform.texture === "top") {
+      texture = platformTexture;
+    } else if (platform.texture === "ground") {
+      texture = groundTexture;
+    } else if (platform.texture === "spike") {
+      texture = spikeTexture;
+    } else if (platform.texture === "background") {
+      texture = backgroundTexture;
     }
+
+    ctx.drawImage(
+      texture,
+      platform.x - camera.x,
+      platform.y - camera.y,
+      platform.width,
+      platform.height
+    );
   });
 
-  // Draw coins with texture
+  // Draw coins
   coins.forEach((coin) => {
     ctx.drawImage(
       coinTexture,
@@ -307,7 +400,7 @@ function drawScene() {
     );
   });
 
-  // Draw player with texture
+  // Draw player
   ctx.drawImage(
     playerTexture,
     player.x - camera.x,
@@ -316,24 +409,26 @@ function drawScene() {
     player.height
   );
 
-  // Draw door with texture
-  ctx.drawImage(
-    doorTexture,
-    door.x - camera.x,
-    door.y - camera.y,
-    door.width,
-    door.height
-  );
+  // Draw door
+  if (door) {
+    ctx.drawImage(
+      doorTexture,
+      door.x - camera.x,
+      door.y - camera.y,
+      door.width,
+      door.height
+    );
+  }
 
-  // Display the timer and coin count
+  // Display timer and coin count
   ctx.fillStyle = "black";
   ctx.font = "20px Arial";
   ctx.fillText(
     `Time: ${timer.currentTime}/${time_left_to_complete_level}s`,
     10,
     50
-  ); // Display timer
-  ctx.fillText(`Coins: ${player.coins}`, 10, 80); // Display coins
+  );
+  ctx.fillText(`Coins: ${player.coins}`, 10, 80);
 }
 
 function checkCoinCollision(player, coin) {
@@ -609,9 +704,100 @@ function startNextLevel() {
   gamerunning = true; // Resume the game
 }
 
-// Initialize
-const initialMap = generateRandomMap(rows, cols);
+window.addEventListener("loadRandomLevel", () => {
+  const randomLevel = generateRandomLevel();
+  loadLevel(randomLevel);
+});
+
+window.addEventListener("loadSavedLevel", (e) => {
+  const levelData = e.detail.data;
+  loadLevel(levelData);
+});
+
+function loadLevel(asciiMap) {
+  const parsedMap = parseASCII(asciiMap);
+  renderLevel(parsedMap);
+}
+
+function generateRandomLevel() {
+  const initialMap = generateRandomMap(rows, cols);
+}
+
+function parseASCII(ascii) {
+  return ascii
+    .trim()
+    .split("\n")
+    .map((row) => row.split(""));
+}
+
+function renderLevel(levelData) {
+  // Use `terraingeneration.js` logic to render the level
+  levelData.forEach((row, y) => {
+    row.forEach((tile, x) => {
+      drawTile(x, y, parseInt(tile)); // Implement this based on `terraingeneration.js`
+    });
+  });
+}
+
+// Load the initial map when the window loads
+window.addEventListener("load", () => {
+  loadLevelFromJSON("levels_data.json"); // Adjust this path if necessary
+});
+
+function centerCameraOnPlayer() {
+  camera.x = Math.max(
+    0,
+    Math.min(player.x - camera.width / 2, cols * tileSize - camera.width)
+  );
+  camera.y = Math.max(
+    0,
+    Math.min(player.y - camera.height / 2, rows * tileSize - camera.height)
+  );
+}
+
+document.getElementById("load-level").addEventListener("click", () => {
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("load-level-popup").style.display = "block";
+});
+
+document.getElementById("cancel-load").addEventListener("click", () => {
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("load-level-popup").style.display = "none";
+});
+
+document.getElementById("confirm-load").addEventListener("click", () => {
+  const levelName = document.getElementById("level-name-input").value.trim();
+  if (levelName) {
+    loadLevelByName(levelName);
+  }
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("load-level-popup").style.display = "none";
+});
+
+// Load the level by name from levels_data.json
+async function loadLevelByName(levelName) {
+  try {
+    const response = await fetch("levels_data.json");
+    if (!response.ok) {
+      throw new Error("Failed to fetch levels data.");
+    }
+
+    const levels = await response.json();
+    const level = levels.find((lvl) => lvl.name === levelName);
+
+    if (level) {
+      console.log(`Loading level: ${levelName}`);
+      parseMap(level.data);
+      update(); // Restart game loop
+    } else {
+      alert(`Level "${levelName}" not found.`);
+    }
+  } catch (error) {
+    console.error("Error loading level:", error);
+  }
+}
+
 console.log("Generated Map:\n" + initialMap);
 timer.startTime = Date.now();
-parseMap(initialMap);
 update();
+centerCameraOnPlayer();

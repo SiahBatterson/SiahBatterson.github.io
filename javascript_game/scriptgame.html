@@ -4,12 +4,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game</title>
     <link rel="stylesheet" href="css/styles.css" />
+    <style>
+      #load-level-popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+      }
+
+      #overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+    </style>
   </head>
   <body>
     <nav>
       <a href="../index.html">Home</a>
     </nav>
+
+    <div id="level-selection">
+      <h3>Select Level</h3>
+      <button id="random-level">Random Level</button>
+      <button id="load-level-popup-button">Load Level by Name</button>
+      <button id="load-file">Upload Level</button>
+      <input type="file" id="level-upload" style="display: none" />
+    </div>
+
     <canvas id="canvas"></canvas>
+
+    <!-- Popup for Loading Level by Name -->
+    <div id="overlay"></div>
+    <div id="load-level-popup">
+      <h3>Enter Level Name</h3>
+      <input type="text" id="level-name-input" placeholder="Level name" />
+      <button id="confirm-load">Load</button>
+      <button id="cancel-load">Cancel</button>
+    </div>
+
     <script type="module" src="js/main.js"></script>
+    <script>
+      // Handle Random Level
+      document.getElementById("random-level").addEventListener("click", () => {
+        dispatchEvent(new CustomEvent("loadRandomLevel"));
+      });
+
+      // Show the load level by name popup
+      document
+        .getElementById("load-level-popup-button")
+        .addEventListener("click", () => {
+          document.getElementById("overlay").style.display = "block";
+          document.getElementById("load-level-popup").style.display = "block";
+        });
+
+      // Cancel loading a level by name
+      document.getElementById("cancel-load").addEventListener("click", () => {
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("load-level-popup").style.display = "none";
+      });
+
+      // Confirm loading a level by name
+      document.getElementById("confirm-load").addEventListener("click", () => {
+        const levelName = document
+          .getElementById("level-name-input")
+          .value.trim();
+        if (levelName) {
+          dispatchEvent(
+            new CustomEvent("loadLevelByName", { detail: { levelName } })
+          );
+        }
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("load-level-popup").style.display = "none";
+      });
+
+      // File Upload for Loading Levels
+      document.getElementById("load-file").addEventListener("click", () => {
+        document.getElementById("level-upload").click();
+      });
+
+      document
+        .getElementById("level-upload")
+        .addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const levelData = JSON.parse(event.target.result);
+            dispatchEvent(
+              new CustomEvent("loadSavedLevel", { detail: levelData })
+            );
+          };
+          reader.readAsText(file);
+        });
+    </script>
   </body>
 </html>
