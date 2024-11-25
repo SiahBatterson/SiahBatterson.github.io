@@ -143,5 +143,141 @@
         >
       </details>
     </section>
+
+    <section id="core-python-qa">
+      <h2>Core Python Q&A</h2>
+
+      <details>
+        <summary>What is the difference between a list and a tuple?</summary>
+        <div>
+          <p>
+            A list is mutable, meaning its elements can be changed, while a
+            tuple is immutable, meaning its elements cannot be changed. Lists
+            are defined using square brackets <code>[]</code>, whereas tuples
+            are defined using parentheses <code>()</code>.
+          </p>
+          <pre>
+    # Example of a list
+    my_list = [1, 2, 3]
+    my_list[0] = 10  # This is allowed
+    
+    # Example of a tuple
+    my_tuple = (1, 2, 3)
+    # my_tuple[0] = 10  # This will raise an error
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>How do you reverse a string in Python?</summary>
+        <div>
+          <p>
+            You can reverse a string in Python using slicing. The syntax is
+            <code>string[::-1]</code>, which creates a new string with
+            characters in reverse order.
+          </p>
+          <pre>
+    # Example of reversing a string
+    original = "hello"
+    reversed_string = original[::-1]  # "olleh"
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          What are list comprehensions, and how do you use them?
+        </summary>
+        <div>
+          <p>
+            List comprehensions provide a concise way to create lists. They
+            allow you to generate a new list by iterating over a sequence and
+            optionally applying a condition or transformation.
+          </p>
+          <pre>
+    # Example: Generate a list of squares of numbers from 0 to 9
+    squares = [x**2 for x in range(10)]
+    
+    # Example: Filter even numbers from a list
+    numbers = [1, 2, 3, 4, 5]
+    evens = [x for x in numbers if x % 2 == 0]
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          Explain the difference between <code>==</code> and <code>is</code>.
+        </summary>
+        <div>
+          <p>
+            The <code>==</code> operator checks if two objects have the same
+            value, while the <code>is</code> operator checks if two objects
+            refer to the same memory location (i.e., are the same object).
+          </p>
+          <pre>
+    # Example of == vs is
+    a = [1, 2, 3]
+    b = [1, 2, 3]
+    c = a
+    
+    print(a == b)  # True: a and b have the same value
+    print(a is b)  # False: a and b are different objects
+    print(a is c)  # True: a and c refer to the same object
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>How do you merge two dictionaries in Python?</summary>
+        <div>
+          <p>
+            In Python 3.9 and later, you can merge two dictionaries using the
+            <code>|</code> operator. Alternatively, you can use the
+            <code>update()</code> method or dictionary unpacking for earlier
+            versions.
+          </p>
+          <pre>
+    # Example using | operator (Python 3.9+)
+    dict1 = {'a': 1, 'b': 2}
+    dict2 = {'c': 3, 'd': 4}
+    merged = dict1 | dict2
+    
+    # Example using update()
+    merged = dict1.copy()
+    merged.update(dict2)
+    
+    # Example using dictionary unpacking (Python 3.5+)
+    merged = {**dict1, **dict2}
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>What is the purpose of the lambda function?</summary>
+        <div>
+          <p>
+            A lambda function is an anonymous, inline function defined using the
+            <code>lambda</code> keyword. It is often used for small, simple
+            operations that don't require a formal function definition.
+          </p>
+          <pre>
+    # Example: Lambda function to calculate the square of a number
+    square = lambda x: x**2
+    result = square(5)  # 25
+    
+    # Example: Using lambda with map()
+    numbers = [1, 2, 3, 4, 5]
+    squared_numbers = list(map(lambda x: x**2, numbers))  # [1, 4, 9, 16, 25]
+                </pre
+          >
+        </div>
+      </details>
+    </section>
   </body>
 </html>
