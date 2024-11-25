@@ -6,10 +6,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Full viewport height */
+  min-height: 100vh;
   margin: 0;
-  font-family: Arial, sans-serif; /* Optional: set a font */
-  background-color: #f0f0f0; /* Optional: set a background color */
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
 }
 
 nav {
@@ -17,13 +18,11 @@ nav {
   top: 30px;
 }
 
-/* Style the heading */
 h1 {
   margin-bottom: 20px;
   text-align: center;
 }
 
-/* Style the form */
 form {
   display: flex;
   flex-direction: column;
@@ -59,7 +58,6 @@ form button:hover {
   background-color: #0056b3;
 }
 
-/* Style the leaderboard */
 h2 {
   margin-bottom: 10px;
   text-align: center;

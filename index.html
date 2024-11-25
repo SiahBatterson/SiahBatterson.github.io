@@ -12,20 +12,17 @@
       ><a href="javascript_game/leveleditor.html">Level Editor</a>
       <a href="studying.html">Study Guides</a>
     </nav>
-    <h1>Welcome to the Game, enter your name to begin!</h1>
-    <p>Some basics:</p>
-    <p>You can wall jump by touching a wall and pressing space again!</p>
-    <p>
-      Picking up coins will help make sure the timer stays high enough for your
-      to complete future levels!
-    </p>
+    <h1>Welcome!</h1>
 
     <!-- Name Input Form -->
-    <form id="nameForm">
-      <label for="playerName">Enter your name:</label>
-      <input type="text" id="playerName" required />
-      <button type="submit">Start Game</button>
-    </form>
+    <details>
+      <summary>Play Game</summary>
+      <form id="nameForm">
+        <label for="playerName">Enter your name:</label>
+        <input type="text" id="playerName" required />
+        <button type="submit">Start Game</button>
+      </form>
+    </details>
 
     <h2>Leaderboard</h2>
     <div id="leaderboard"></div>
