@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -274,6 +274,650 @@
     # Example: Using lambda with map()
     numbers = [1, 2, 3, 4, 5]
     squared_numbers = list(map(lambda x: x**2, numbers))  # [1, 4, 9, 16, 25]
+                </pre
+          >
+        </div>
+      </details>
+    </section>
+
+    <section id="algorithms-qa">
+      <h2>Algorithms and Problem-Solving Q&A</h2>
+
+      <details>
+        <summary>
+          Write a function to find the longest substring without repeating
+          characters.
+        </summary>
+        <div>
+          <p>
+            To find the longest substring without repeating characters, you can
+            use the sliding window technique with a hash map to track
+            characters.
+          </p>
+          <pre>
+    def longest_unique_substring(s):
+        char_index = {}
+        max_length = 0
+        start = 0
+    
+        for i, char in enumerate(s):
+            if char in char_index and char_index[char] >= start:
+                start = char_index[char] + 1
+            char_index[char] = i
+            max_length = max(max_length, i - start + 1)
+    
+        return max_length
+    
+    # Example usage
+    result = longest_unique_substring("abcabcbb")  # Output: 3 ("abc")
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          Implement a function to check if a linked list is a palindrome.
+        </summary>
+        <div>
+          <p>
+            To check if a linked list is a palindrome, use a two-pointer
+            approach to find the middle, reverse the second half, and compare
+            the halves.
+          </p>
+          <pre>
+    class ListNode:
+        def __init__(self, value=0, next=None):
+            self.value = value
+            self.next = next
+    
+    def is_palindrome(head):
+        # Find the middle of the list
+        slow, fast = head, head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+    
+        # Reverse the second half
+        prev = None
+        while slow:
+            temp = slow.next
+            slow.next = prev
+            prev = slow
+            slow = temp
+    
+        # Compare the two halves
+        left, right = head, prev
+        while right:
+            if left.value != right.value:
+                return False
+            left = left.next
+            right = right.next
+    
+        return True
+    
+    # Example usage
+    head = ListNode(1, ListNode(2, ListNode(2, ListNode(1))))
+    result = is_palindrome(head)  # Output: True
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>How do you perform binary search in Python?</summary>
+        <div>
+          <p>
+            Binary search is an efficient algorithm for finding an element in a
+            sorted array. It uses a divide-and-conquer approach by repeatedly
+            dividing the search interval in half.
+          </p>
+          <pre>
+    def binary_search(arr, target):
+        left, right = 0, len(arr) - 1
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                return mid
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return -1
+    
+    # Example usage
+    arr = [1, 2, 3, 4, 5, 6]
+    result = binary_search(arr, 4)  # Output: 3 (index of 4)
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>Solve the two-sum problem using a dictionary.</summary>
+        <div>
+          <p>
+            The two-sum problem involves finding two numbers in an array that
+            add up to a specific target. A dictionary (hash map) can be used to
+            store and look up the complement of each number in O(1) time.
+          </p>
+          <pre>
+    def two_sum(nums, target):
+        num_map = {}
+        for i, num in enumerate(nums):
+            complement = target - num
+            if complement in num_map:
+                return [num_map[complement], i]
+            num_map[num] = i
+        return []
+    
+    # Example usage
+    nums = [2, 7, 11, 15]
+    result = two_sum(nums, 9)  # Output: [0, 1] (indices of 2 and 7)
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          What is the time complexity of common list operations like append()
+          and insert()?
+        </summary>
+        <div>
+          <p>The time complexity of common list operations is as follows:</p>
+          <ul>
+            <li>
+              <code>append()</code>: O(1) - Adding an element to the end of the
+              list.
+            </li>
+            <li>
+              <code>insert(index, element)</code>: O(n) - Inserting an element
+              at an arbitrary index requires shifting elements.
+            </li>
+            <li>
+              <code>pop()</code>: O(1) - Removing the last element is constant
+              time.
+            </li>
+            <li>
+              <code>pop(index)</code>: O(n) - Removing an element at an
+              arbitrary index requires shifting elements.
+            </li>
+            <li>
+              <code>list[index]</code>: O(1) - Accessing an element by index is
+              constant time.
+            </li>
+          </ul>
+        </div>
+      </details>
+    </section>
+    <section id="data-visualization-qa">
+      <h2>Data Visualization Q&A</h2>
+
+      <details>
+        <summary>How do you create a scatter plot using Matplotlib?</summary>
+        <div>
+          <p>
+            To create a scatter plot using Matplotlib, use the
+            <code>scatter()</code> method. You need to provide two sequences of
+            numbers (e.g., lists or arrays) representing the x and y
+            coordinates.
+          </p>
+          <pre>
+    import matplotlib.pyplot as plt
+    
+    # Example data
+    x = [1, 2, 3, 4, 5]
+    y = [5, 4, 3, 2, 1]
+    
+    # Create scatter plot
+    plt.scatter(x, y)
+    
+    # Add labels and title
+    plt.xlabel("X-axis Label")
+    plt.ylabel("Y-axis Label")
+    plt.title("Scatter Plot Example")
+    
+    # Show plot
+    plt.show()
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          What is the difference between <code>sns.histplot()</code> and
+          <code>sns.distplot()</code> in Seaborn?
+        </summary>
+        <div>
+          <p>
+            The key differences between <code>sns.histplot()</code> and
+            <code>sns.distplot()</code> in Seaborn are:
+          </p>
+          <ul>
+            <li>
+              <code>sns.histplot()</code> is a newer function that is used to
+              plot histograms with optional kernel density estimation (KDE).
+            </li>
+            <li>
+              <code>sns.distplot()</code> is deprecated and combines a histogram
+              with a KDE plot by default.
+            </li>
+          </ul>
+          <p>Example using <code>sns.histplot()</code>:</p>
+          <pre>
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    
+    # Example data
+    data = [1, 2, 2, 3, 3, 3, 4, 4, 5]
+    
+    # Plot histogram
+    sns.histplot(data, kde=True)
+    
+    # Show plot
+    plt.show()
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>How do you perform a pivot table operation in Pandas?</summary>
+        <div>
+          <p>
+            Use the <code>pivot_table()</code> method in Pandas to create a
+            pivot table. You can specify the index, columns, values, and an
+            aggregation function.
+          </p>
+          <pre>
+    import pandas as pd
+    
+    # Example data
+    data = {
+        "City": ["NY", "LA", "NY", "LA"],
+        "Product": ["A", "A", "B", "B"],
+        "Sales": [100, 200, 150, 300],
+    }
+    df = pd.DataFrame(data)
+    
+    # Create pivot table
+    pivot = df.pivot_table(
+        index="City",
+        columns="Product",
+        values="Sales",
+        aggfunc="sum"
+    )
+    
+    print(pivot)
+    # Output:
+    # Product      A      B
+    # City
+    # LA        200.0  300.0
+    # NY        100.0  150.0
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          Explain the use of <code>groupby()</code> and <code>apply()</code> for
+          custom aggregations.
+        </summary>
+        <div>
+          <p>
+            The <code>groupby()</code> method is used to group data by a
+            specified column, and <code>apply()</code> is used to perform custom
+            aggregations or transformations on each group.
+          </p>
+          <pre>
+    import pandas as pd
+    
+    # Example data
+    data = {
+        "Department": ["HR", "IT", "HR", "IT"],
+        "Salary": [50000, 70000, 60000, 80000],
+    }
+    df = pd.DataFrame(data)
+    
+    # Group by department and calculate average salary
+    grouped = df.groupby("Department")["Salary"].apply(lambda x: x.mean())
+    
+    print(grouped)
+    # Output:
+    # Department
+    # HR    55000.0
+    # IT    75000.0
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>How do you plot multiple subplots in Matplotlib?</summary>
+        <div>
+          <p>
+            To plot multiple subplots, use the
+            <code>plt.subplots()</code> function to create a figure and axes.
+            You can specify the number of rows and columns for the layout.
+          </p>
+          <pre>
+    import matplotlib.pyplot as plt
+    
+    # Create a 2x2 grid of subplots
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    
+    # Plot data on each subplot
+    axes[0, 0].plot([1, 2, 3], [4, 5, 6])
+    axes[0, 0].set_title("Plot 1")
+    
+    axes[0, 1].scatter([1, 2, 3], [6, 5, 4])
+    axes[0, 1].set_title("Plot 2")
+    
+    axes[1, 0].bar([1, 2, 3], [7, 8, 9])
+    axes[1, 0].set_title("Plot 3")
+    
+    axes[1, 1].hist([1, 1, 2, 3, 3, 3])
+    axes[1, 1].set_title("Plot 4")
+    
+    # Adjust layout and show plot
+    plt.tight_layout()
+    plt.show()
+                </pre
+          >
+        </div>
+      </details>
+    </section>
+
+    <section id="etl-qa">
+      <h2>ETL and Data Pipelines Q&A</h2>
+
+      <details>
+        <summary>How do you read a CSV file in chunks using Pandas?</summary>
+        <div>
+          <p>
+            You can read a CSV file in chunks using the
+            <code>pd.read_csv()</code> method with the
+            <code>chunksize</code> parameter. This is useful for processing
+            large files without loading the entire dataset into memory.
+          </p>
+          <pre>
+    import pandas as pd
+    
+    # Read CSV file in chunks of 1000 rows
+    chunksize = 1000
+    for chunk in pd.read_csv("large_file.csv", chunksize=chunksize):
+        # Process each chunk
+        print(chunk.head())
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          What is the role of generators in building efficient data pipelines?
+        </summary>
+        <div>
+          <p>
+            Generators allow you to yield data one item at a time, which is
+            memory-efficient and ideal for streaming large datasets in a data
+            pipeline. Generators avoid loading all the data into memory at once.
+          </p>
+          <pre>
+    def data_generator():
+        for i in range(1000000):
+            yield i
+    
+    # Example usage
+    for value in data_generator():
+        if value > 10:  # Break after processing 10 values
+            break
+    print(value)
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>Explain how to use Python to interact with databases.</summary>
+        <div>
+          <p>
+            You can interact with databases in Python using libraries like
+            <code>sqlite3</code> for SQLite or <code>SQLAlchemy</code> for a
+            more general ORM. Use SQL queries to read, write, and update data.
+          </p>
+          <pre>
+    import sqlite3
+    
+    # Connect to SQLite database
+    conn = sqlite3.connect("example.db")
+    
+    # Create a cursor object
+    cursor = conn.cursor()
+    
+    # Execute a query
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER, name TEXT)")
+    
+    # Insert data
+    cursor.execute("INSERT INTO users (id, name) VALUES (1, 'Alice')")
+    
+    # Commit and close connection
+    conn.commit()
+    conn.close()
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          How do you parallelize data processing using multiprocessing or
+          multithreading?
+        </summary>
+        <div>
+          <p>
+            Use the <code>multiprocessing</code> module for CPU-bound tasks and
+            the <code>threading</code> module for I/O-bound tasks. Both allow
+            you to run tasks in parallel to improve performance.
+          </p>
+          <pre>
+    from multiprocessing import Pool
+    
+    # Example of multiprocessing
+    def square(x):
+        return x * x
+    
+    if __name__ == "__main__":
+        with Pool(4) as p:
+            results = p.map(square, [1, 2, 3, 4])
+        print(results)  # Output: [1, 4, 9, 16]
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          What is the purpose of the Airflow library, and how do you use it?
+        </summary>
+        <div>
+          <p>
+            Apache Airflow is used to schedule, monitor, and manage workflows as
+            Directed Acyclic Graphs (DAGs). It allows you to define tasks and
+            their dependencies programmatically.
+          </p>
+          <pre>
+    from airflow import DAG
+    from airflow.operators.python import PythonOperator
+    from datetime import datetime
+    
+    # Define the DAG
+    default_args = {"owner": "airflow", "start_date": datetime(2023, 1, 1)}
+    dag = DAG("example_dag", default_args=default_args, schedule_interval="@daily")
+    
+    # Define a Python task
+    def hello_world():
+        print("Hello, Airflow!")
+    
+    task = PythonOperator(
+        task_id="hello_task", python_callable=hello_world, dag=dag
+    )
+                </pre
+          >
+        </div>
+      </details>
+    </section>
+
+    <section id="machine-learning-qa">
+      <h2>Machine Learning Q&A</h2>
+
+      <details>
+        <summary>
+          How do you handle missing data in a dataset before training a model?
+        </summary>
+        <div>
+          <p>Common strategies to handle missing data include:</p>
+          <ul>
+            <li>Removing rows or columns with missing values.</li>
+            <li>Imputing missing values using the mean, median, or mode.</li>
+            <li>
+              Using advanced methods like KNN imputation or regression models.
+            </li>
+          </ul>
+          <pre>
+    import pandas as pd
+    from sklearn.impute import SimpleImputer
+    
+    # Example DataFrame
+    data = {'A': [1, 2, None, 4], 'B': [5, None, 7, 8]}
+    df = pd.DataFrame(data)
+    
+    # Impute missing values with mean
+    imputer = SimpleImputer(strategy="mean")
+    df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+    print(df_imputed)
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          What is the difference between <code>fit()</code> and
+          <code>transform()</code> in Scikit-Learn?
+        </summary>
+        <div>
+          <p>
+            <code>fit()</code> computes the necessary statistics (e.g., mean,
+            variance) to transform the data, while
+            <code>transform()</code> applies those statistics to modify the
+            data. <code>fit_transform()</code> combines both operations.
+          </p>
+          <pre>
+    from sklearn.preprocessing import StandardScaler
+    
+    scaler = StandardScaler()
+    
+    # Fit and transform data
+    scaler.fit(data)
+    scaled_data = scaler.transform(data)
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>Explain how to implement cross-validation in Python.</summary>
+        <div>
+          <p>
+            Cross-validation is used to evaluate a model's performance by
+            splitting the data into training and testing subsets. Use
+            <code>cross_val_score()</code> from Scikit-Learn.
+          </p>
+          <pre>
+    from sklearn.model_selection import cross_val_score
+    from sklearn.ensemble import RandomForestClassifier
+    
+    # Example data and model
+    X, y = [[1, 2], [3, 4], [5, 6]], [0, 1, 0]
+    model = RandomForestClassifier()
+    
+    # Perform cross-validation
+    scores = cross_val_score(model, X, y, cv=3)
+    print(scores)
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          How do you choose the right metric for evaluating a regression model?
+        </summary>
+        <div>
+          <p>Common metrics for regression models include:</p>
+          <ul>
+            <li>
+              <strong>Mean Absolute Error (MAE):</strong> Measures average
+              absolute difference between predictions and actual values.
+            </li>
+            <li>
+              <strong>Mean Squared Error (MSE):</strong> Penalizes larger errors
+              more than MAE.
+            </li>
+            <li>
+              <strong>R-squared:</strong> Measures how well the model explains
+              the variance in the data.
+            </li>
+          </ul>
+          <pre>
+    from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+    
+    # Example usage
+    y_true = [3, -0.5, 2, 7]
+    y_pred = [2.5, 0.0, 2, 8]
+    
+    mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    r2 = r2_score(y_true, y_pred)
+    
+    print(f"MAE: {mae}, MSE: {mse}, R2: {r2}")
+                </pre
+          >
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          What are the main steps in preprocessing text data for NLP tasks?
+        </summary>
+        <div>
+          <p>Preprocessing text data involves several steps:</p>
+          <ol>
+            <li>Tokenization: Splitting text into words or sentences.</li>
+            <li>Lowercasing: Converting all text to lowercase.</li>
+            <li>
+              Removing stop words: Filtering out common words like "and", "the".
+            </li>
+            <li>Stemming/Lemmatization: Reducing words to their base forms.</li>
+            <li>
+              Vectorization: Converting text into numerical representations
+              using methods like TF-IDF or word embeddings.
+            </li>
+          </ol>
+          <pre>
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    
+    # Example text data
+    documents = ["This is a sentence.", "This is another sentence."]
+    
+    # Vectorize text using TF-IDF
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform(documents)
+    print(tfidf_matrix.toarray())
                 </pre
           >
         </div>

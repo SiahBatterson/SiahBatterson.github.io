@@ -110,7 +110,8 @@ p {
 }
 
 a {
-  background-color: #add8e6;
+  background-color: #d6e2e7;
+  color: black;
   text-decoration: none;
   border: 5px solid rgb(79, 99, 105);
   border-radius: 3px;
@@ -119,7 +120,7 @@ a {
 }
 
 a:hover {
-  background-color: #ade6dd;
+  background-color: #bec9c8;
   border-radius: 4px;
   padding: 7px;
   transition-duration: 0.15s;
