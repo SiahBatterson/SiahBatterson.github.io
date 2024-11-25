@@ -13,6 +13,14 @@
         flex-direction: column;
         align-items: center;
       }
+      #question {
+        margin-top: 20px;
+        width: 80%;
+        background: #f4f4f4;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
       #editor {
         width: 80%;
         height: 300px;
@@ -47,13 +55,48 @@
   </head>
   <body>
     <h1>Python Practice Terminal</h1>
+    <div id="question">
+      <h2 id="question-title"></h2>
+      <p id="question-description"></p>
+      <pre id="question-example"></pre>
+      <p><strong>Hint:</strong> <span id="question-hint"></span></p>
+    </div>
     <div id="editor" contenteditable="true"># Write your Python code here</div>
     <button onclick="runCode()">Run Code</button>
+    <button onclick="nextQuestion()">Next Question</button>
     <div id="output"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.0/skulpt.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.0/skulpt-stdlib.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.1.0/dist/skulpt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.1.0/dist/skulpt-stdlib.js"></script>
     <script>
+      let questions = [];
+      let currentQuestionIndex = 0;
+
+      // Load questions from JSON
+      async function loadQuestions() {
+        const response = await fetch("questions.json");
+        questions = await response.json();
+        displayQuestion(0);
+      }
+
+      function displayQuestion(index) {
+        const question = questions[index];
+        document.getElementById("question-title").innerText = question.title;
+        document.getElementById("question-description").innerText =
+          question.description;
+        document.getElementById("question-example").innerText =
+          question.example;
+        document.getElementById("question-hint").innerText = question.hint;
+      }
+
+      function nextQuestion() {
+        currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+        displayQuestion(currentQuestionIndex);
+        document.getElementById("editor").innerText =
+          "# Write your Python code here";
+        document.getElementById("output").innerText = "";
+      }
+
       function runCode() {
         let code = document.getElementById("editor").innerText;
         let outputElement = document.getElementById("output");
@@ -66,6 +109,9 @@
           (err) => (outputElement.innerText += err.toString())
         );
       }
+
+      // Initialize
+      loadQuestions();
     </script>
   </body>
 </html>

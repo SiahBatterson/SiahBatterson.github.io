@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "title": "Check Prime Number",
+    "description": "Write a Python function to check if a number is prime.",
+    "example": "Input: 7\nOutput: True",
+    "hint": "Iterate through numbers from 2 to sqrt(n)."
+  },
+  {
+    "id": 2,
+    "title": "Reverse a String",
+    "description": "Reverse a string without using slicing.",
+    "example": "Input: 'hello'\nOutput: 'olleh'",
+    "hint": "Use a loop or recursion to reverse the string."
+  },
+  {
+    "id": 3,
+    "title": "GCD of Two Numbers",
+    "description": "Write a program to find the greatest common divisor (GCD) of two numbers.",
+    "example": "Input: 12, 18\nOutput: 6",
+    "hint": "Use the Euclidean algorithm."
+  },
+  {
+    "id": 4,
+    "title": "Factorial using Recursion",
+    "description": "Write a Python function to calculate the factorial of a number using recursion.",
+    "example": "Input: 5\nOutput: 120",
+    "hint": "Factorial of n is n * factorial(n-1)."
+  },
+  {
+    "id": 5,
+    "title": "Second Largest in a List",
+    "description": "Find the second largest number in a list.",
+    "example": "Input: [1, 5, 3, 9, 7]\nOutput: 7",
+    "hint": "Sort the list or iterate to find the second largest."
+  }
+]
