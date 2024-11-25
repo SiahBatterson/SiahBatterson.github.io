@@ -68,3 +68,10 @@ h2 {
 p {
   margin: 5px 0;
 }
+
+a {
+  background-color: #007bff;
+  border: 5px solid black;
+  border-radius: 1px;
+  margin: 5px;
+}
