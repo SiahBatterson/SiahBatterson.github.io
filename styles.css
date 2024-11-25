@@ -79,6 +79,6 @@ a {
 
 a:hover {
   background-color: rgb(151, 187, 199);
-  padding: 5px;
-  transition-duration: 1s;
+  padding: 7px;
+  transition-duration: 0.2s;
 }
