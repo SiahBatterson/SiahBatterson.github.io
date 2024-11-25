@@ -113,7 +113,7 @@ a {
   background-color: #d6e2e7;
   color: black;
   text-decoration: none;
-  border: 5px solid rgb(79, 99, 105);
+  border: 2px solid rgb(79, 99, 105);
   border-radius: 3px;
   padding: 8px;
   margin: 10px;
@@ -121,7 +121,7 @@ a {
 
 a:hover {
   background-color: #bec9c8;
-  border-radius: 4px;
+  border-radius: 3px;
   padding: 7px;
   transition-duration: 0.15s;
 }
