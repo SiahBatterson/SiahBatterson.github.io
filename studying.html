@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Python Interview Questions Study Guide</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 20px;
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      .accordion {
+        cursor: pointer;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-bottom: 5px;
+        text-align: left;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+      .accordion:hover {
+        background-color: #e2e2e2;
+      }
+      .panel {
+        display: none;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-top: none;
+        background-color: #f5f5f5;
+      }
+      .panel p {
+        margin: 5px 0;
+      }
+      .code {
+        background-color: #eee;
+        padding: 5px;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Python Interview Questions Study Guide</h1>
+    <h2>Topics</h2>
+
+    <!-- Core Python Concepts -->
+    <button class="accordion">Core Python Concepts</button>
+    <div class="panel">
+      <p><strong>What is Python?</strong></p>
+      <p>
+        Python is a high-level, interpreted programming language known for its
+        readability and versatility.
+      </p>
+
+      <p><strong>Key features of Python:</strong></p>
+      <ul>
+        <li>Interpreted and dynamically typed</li>
+        <li>Object-oriented</li>
+        <li>Extensive standard library</li>
+        <li>Platform-independent</li>
+      </ul>
+
+      <p><strong>Mutable vs Immutable:</strong></p>
+      <ul>
+        <li>Mutable: List, dict, set</li>
+        <li>Immutable: int, str, tuple</li>
+      </ul>
+    </div>
+
+    <!-- Control Structures and Functions -->
+    <button class="accordion">Control Structures and Functions</button>
+    <div class="panel">
+      <p><strong>Control Structures:</strong></p>
+      <ul>
+        <li>
+          Conditional Statements: <span class="code">if</span>,
+          <span class="code">elif</span>, <span class="code">else</span>
+        </li>
+        <li>
+          Loops: <span class="code">for</span>, <span class="code">while</span>,
+          <span class="code">break</span>, <span class="code">continue</span>
+        </li>
+      </ul>
+
+      <p><strong>Functions:</strong></p>
+      <p>Defined using the <span class="code">def</span> keyword. Example:</p>
+      <pre class="code">
+def greet(name):
+    return f"Hello, {name}!"
+        </pre
+      >
+      <p>
+        Lambda functions are anonymous functions created using
+        <span class="code">lambda</span>.
+      </p>
+    </div>
+
+    <!-- OOP in Python -->
+    <button class="accordion">OOP in Python</button>
+    <div class="panel">
+      <p><strong>What is OOP?</strong></p>
+      <p>
+        Object-Oriented Programming is a paradigm based on the concept of
+        objects that contain data and methods.
+      </p>
+
+      <p><strong>Example:</strong></p>
+      <pre class="code">
+class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+dog = Dog("Buddy")
+print(dog.bark())
+        </pre
+      >
+    </div>
+
+    <!-- Advanced Python -->
+    <button class="accordion">Advanced Python</button>
+    <div class="panel">
+      <p><strong>Iterators and Generators:</strong></p>
+      <p>
+        Iterators are objects that can be iterated upon, and generators are a
+        simplified way to create iterators using
+        <span class="code">yield</span>.
+      </p>
+
+      <p><strong>Example of Generator:</strong></p>
+      <pre class="code">
+def count_up_to(n):
+    count = 1
+    while count <= n:
+        yield count
+        count += 1
+
+for num in count_up_to(5):
+    print(num)
+        </pre
+      >
+    </div>
+
+    <script>
+      const accordions = document.querySelectorAll(".accordion");
+      accordions.forEach((accordion) => {
+        accordion.addEventListener("click", () => {
+          accordion.classList.toggle("active");
+          const panel = accordion.nextElementSibling;
+          if (panel.style.display === "block") {
+            panel.style.display = "none";
+          } else {
+            panel.style.display = "block";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
