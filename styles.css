@@ -70,8 +70,9 @@ p {
 }
 
 a {
-  background-color: #007bff;
-  border: 5px solid black;
-  border-radius: 1px;
-  margin: 5px;
+  background-color: lightblue;
+  border: 5px solid grey;
+  border-radius: 3px;
+  padding: 8px;
+  margin: 10px;
 }
