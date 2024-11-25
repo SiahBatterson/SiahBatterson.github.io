@@ -76,3 +76,9 @@ a {
   padding: 8px;
   margin: 10px;
 }
+
+a:hover {
+  background-color: rgb(151, 187, 199);
+  padding: 5px;
+  transition-duration: 1s;
+}
