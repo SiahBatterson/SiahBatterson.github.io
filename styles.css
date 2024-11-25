@@ -70,15 +70,17 @@ p {
 }
 
 a {
-  background-color: lightblue;
-  border: 5px solid grey;
+  background-color: #add8e6;
+  text-decoration: none;
+  border: 5px solid rgb(129, 161, 172);
   border-radius: 3px;
   padding: 8px;
   margin: 10px;
 }
 
 a:hover {
-  background-color: rgb(151, 187, 199);
+  background-color: #ade6dd;
+  border-radius: 4px;
   padding: 7px;
-  transition-duration: 0.2s;
+  transition-duration: 0.15s;
 }
