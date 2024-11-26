@@ -14,14 +14,31 @@
     <script src="https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js"></script>
     <script>
       async function runCode() {
-        const pyodide = await loadPyodide();
-        const code = document.getElementById("code").value;
         const outputElement = document.getElementById("output");
+        const code = document.getElementById("code").value;
+
+        outputElement.innerText = "Running...\n";
+
         try {
-          const result = await pyodide.runPythonAsync(code);
+          const pyodide = await loadPyodide();
+          // Redirect stdout to capture the output of print()
+          pyodide.runPython(`
+import sys
+class StdoutRedirector:
+    def __init__(self):
+        self.content = []
+    def write(self, s):
+        self.content.append(s)
+    def flush(self):
+        pass
+sys.stdout = StdoutRedirector()
+`);
+          // Run the code and capture the redirected output
+          pyodide.runPython(code);
+          const result = pyodide.runPython("''.join(sys.stdout.content)");
           outputElement.innerText = result;
         } catch (error) {
-          outputElement.innerText = error;
+          outputElement.innerText = "Error:\n" + error.message;
         }
       }
     </script>
