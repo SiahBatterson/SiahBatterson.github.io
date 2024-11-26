@@ -33,7 +33,11 @@
         border: none;
         cursor: pointer;
       }
-      button:hover {
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      button:hover:enabled {
         background-color: #0056b3;
       }
       #output {
@@ -60,7 +64,9 @@
       <textarea id="code" placeholder="Write your Python code here"></textarea>
       <br />
       <button onclick="runCode()">Run Code</button>
-      <button onclick="nextQuestion()">Next Question</button>
+      <button id="next-button" onclick="nextQuestion()" disabled>
+        Next Question
+      </button>
     </div>
     <div id="output">Output will appear here</div>
 
@@ -115,12 +121,14 @@
         document.getElementById("question-hint").innerText = question.hint;
         document.getElementById("code").value = ""; // Reset code editor
         document.getElementById("output").innerText = "Output will appear here"; // Reset output
+        document.getElementById("next-button").disabled = true; // Disable Next button
       }
 
-      // Run Python code and display the result or errors
+      // Run Python code and validate output
       async function runCode() {
         const code = document.getElementById("code").value;
         const outputElement = document.getElementById("output");
+        const nextButton = document.getElementById("next-button");
 
         // Reset output
         outputElement.innerText = "Running...\n";
@@ -131,6 +139,15 @@
           pyodide.runPython("sys.stdout.truncate(0); sys.stdout.seek(0)"); // Clear stdout buffer
 
           outputElement.innerText = stdout || "No output";
+
+          // Check if the output matches the expected output
+          const expectedOutput = questions[currentQuestionIndex].expectedOutput;
+          if (stdout === expectedOutput) {
+            nextButton.disabled = false; // Enable Next button
+            outputElement.innerText += "\n✅ Correct!";
+          } else {
+            outputElement.innerText += "\n❌ Incorrect. Try again!";
+          }
         } catch (error) {
           outputElement.innerText = "Error: " + error.message;
         }
