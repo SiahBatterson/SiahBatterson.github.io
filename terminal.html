@@ -3,116 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Python Practice Terminal</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      #question {
-        margin-top: 20px;
-        width: 80%;
-        background: #f4f4f4;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
-      #editor {
-        width: 80%;
-        height: 300px;
-        margin-top: 20px;
-        border: 1px solid #ccc;
-        font-family: monospace;
-        background: #f4f4f4;
-        padding: 10px;
-      }
-      #output {
-        width: 80%;
-        height: 100px;
-        margin-top: 20px;
-        border: 1px solid #ccc;
-        background: #222;
-        color: #fff;
-        overflow-y: auto;
-        padding: 10px;
-      }
-      button {
-        margin: 10px;
-        padding: 10px;
-        background: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-      }
-      button:hover {
-        background: #0056b3;
-      }
-    </style>
+    <title>Python Terminal with Pyodide</title>
   </head>
   <body>
-    <h1>Python Practice Terminal</h1>
-    <div id="question">
-      <h2 id="question-title"></h2>
-      <p id="question-description"></p>
-      <pre id="question-example"></pre>
-      <p><strong>Hint:</strong> <span id="question-hint"></span></p>
-    </div>
-    <div id="editor" contenteditable="true"># Write your Python code here</div>
+    <textarea id="code" cols="50" rows="10">print("Hello, Pyodide!")</textarea>
+    <br />
     <button onclick="runCode()">Run Code</button>
-    <button onclick="nextQuestion()">Next Question</button>
-    <div id="output"></div>
+    <pre id="output"></pre>
 
-    <script src="https://cdn.jsdelivr.net/npm/skulpt@0.11.0/dist/skulpt.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/skulpt@0.11.0/dist/skulpt-stdlib.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js"></script>
     <script>
-      let questions = [];
-      let currentQuestionIndex = 0;
-
-      // Load questions from JSON
-      async function loadQuestions() {
-        const response = await fetch("questions.json");
-        questions = await response.json();
-        displayQuestion(0);
+      async function runCode() {
+        const pyodide = await loadPyodide();
+        const code = document.getElementById("code").value;
+        const outputElement = document.getElementById("output");
+        try {
+          const result = await pyodide.runPythonAsync(code);
+          outputElement.innerText = result;
+        } catch (error) {
+          outputElement.innerText = error;
+        }
       }
-
-      function displayQuestion(index) {
-        const question = questions[index];
-        document.getElementById("question-title").innerText = question.title;
-        document.getElementById("question-description").innerText =
-          question.description;
-        document.getElementById("question-example").innerText =
-          question.example;
-        document.getElementById("question-hint").innerText = question.hint;
-      }
-
-      function nextQuestion() {
-        currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
-        displayQuestion(currentQuestionIndex);
-        document.getElementById("editor").innerText =
-          "# Write your Python code here";
-        document.getElementById("output").innerText = "";
-      }
-
-      function runCode() {
-        let code = document.getElementById("editor").innerText;
-        let outputElement = document.getElementById("output");
-        outputElement.innerText = "Running...\n";
-
-        Sk.configure({
-          output: (text) => (outputElement.innerText += text + "\n"),
-        });
-        Sk.importMainWithBody("<stdin>", false, code).catch(
-          (err) => (outputElement.innerText += err.toString())
-        );
-      }
-
-      // Initialize
-      loadQuestions();
     </script>
   </body>
 </html>
