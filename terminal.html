@@ -3,44 +3,116 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Python Terminal with Pyodide</title>
+    <title>Python Practice with Pyodide</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      #question-container {
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: #f9f9f9;
+      }
+      #code-container {
+        margin-bottom: 20px;
+      }
+      textarea {
+        width: 100%;
+        height: 150px;
+        font-family: monospace;
+        font-size: 14px;
+      }
+      button {
+        margin: 5px;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #output {
+        padding: 10px;
+        background: #222;
+        color: #fff;
+        border-radius: 5px;
+        min-height: 50px;
+      }
+    </style>
   </head>
   <body>
-    <textarea id="code" cols="50" rows="10">print("Hello, Pyodide!")</textarea>
-    <br />
-    <button onclick="runCode()">Run Code</button>
-    <pre id="output"></pre>
+    <h1>Python Practice with Pyodide</h1>
+    <div id="question-container">
+      <h2 id="question-title">Question Title</h2>
+      <p id="question-description">Question description will appear here.</p>
+      <pre id="question-example">Example: Example output will appear here.</pre>
+      <p>
+        <strong>Hint:</strong>
+        <span id="question-hint">Hint will appear here.</span>
+      </p>
+    </div>
+    <div id="code-container">
+      <textarea id="code" placeholder="Write your Python code here"></textarea>
+      <br />
+      <button onclick="runCode()">Run Code</button>
+      <button onclick="nextQuestion()">Next Question</button>
+    </div>
+    <div id="output">Output will appear here</div>
 
     <script src="https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js"></script>
     <script>
-      async function runCode() {
-        const outputElement = document.getElementById("output");
-        const code = document.getElementById("code").value;
+      let questions = [];
+      let currentQuestionIndex = 0;
 
+      async function loadQuestions() {
+        // Load questions from JSON file
+        const response = await fetch("questions.json");
+        questions = await response.json();
+        displayQuestion(0);
+      }
+
+      function displayQuestion(index) {
+        // Show the current question
+        const question = questions[index];
+        document.getElementById("question-title").innerText = question.title;
+        document.getElementById("question-description").innerText =
+          question.description;
+        document.getElementById("question-example").innerText =
+          question.example;
+        document.getElementById("question-hint").innerText = question.hint;
+        document.getElementById("code").value = ""; // Reset code editor
+        document.getElementById("output").innerText = "Output will appear here"; // Reset output
+      }
+
+      async function runCode() {
+        const code = document.getElementById("code").value;
+        const outputElement = document.getElementById("output");
+
+        // Reset output
         outputElement.innerText = "Running...\n";
 
         try {
           const pyodide = await loadPyodide();
-          // Redirect stdout to capture the output of print()
-          pyodide.runPython(`
-import sys
-class StdoutRedirector:
-    def __init__(self):
-        self.content = []
-    def write(self, s):
-        self.content.append(s)
-    def flush(self):
-        pass
-sys.stdout = StdoutRedirector()
-`);
-          // Run the code and capture the redirected output
-          pyodide.runPython(code);
-          const result = pyodide.runPython("''.join(sys.stdout.content)");
+          const result = await pyodide.runPythonAsync(code);
           outputElement.innerText = result;
         } catch (error) {
-          outputElement.innerText = "Error:\n" + error.message;
+          outputElement.innerText = "Error: " + error.message;
         }
       }
+
+      function nextQuestion() {
+        // Go to the next question
+        currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+        displayQuestion(currentQuestionIndex);
+      }
+
+      // Initialize the question loading
+      loadQuestions();
     </script>
   </body>
 </html>
