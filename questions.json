@@ -1,169 +1,170 @@
-{
-        "id": 1,
-        "title": "Find Prime Numbers",
-        "description": "Write a function to return a list of all prime numbers less than n.",
-        "example": "Input: prime_numbers(10)\nOutput: [2, 3, 5, 7]",
-        "hint": "Iterate through numbers from 2 to sqrt(n) and check divisibility."
-    },
-    {
-        "id": 2,
-        "title": "Reverse Words in String",
-        "description": "Write a function to reverse the words in a sentence.",
-        "example": "Input: reverse_words('Hello World')\nOutput: 'World Hello'",
-        "hint": "Split the string, reverse the list, and join."
-    },
-    {
-        "id": 3,
-        "title": "Count Vowels",
-        "description": "Write a function to count the number of vowels in a string.",
-        "example": "Input: count_vowels('hello')\nOutput: 2",
-        "hint": "Check for vowels 'a', 'e', 'i', 'o', 'u' in the string."
-    },
-    {
-        "id": 4,
-        "title": "Factorial Using Recursion",
-        "description": "Write a function to calculate the factorial of a number using recursion.",
-        "example": "Input: factorial(5)\nOutput: 120",
-        "hint": "Factorial of n is n * factorial(n-1)."
-    },
-    {
-        "id": 5,
-        "title": "Second Largest in List",
-        "description": "Write a function to find the second largest element in a list.",
-        "example": "Input: second_largest([3, 1, 4, 1, 5, 9])\nOutput: 5",
-        "hint": "Sort the list or iterate to find the second largest."
-    },
-    {
-        "id": 6,
-        "title": "Palindrome Checker",
-        "description": "Write a function to check if a string is a palindrome.",
-        "example": "Input: is_palindrome('radar')\nOutput: True",
-        "hint": "Compare the string with its reverse."
-    },
-    {
-        "id": 7,
-        "title": "Fibonacci Sequence",
-        "description": "Write a function to generate the first n Fibonacci numbers.",
-        "example": "Input: fibonacci(5)\nOutput: [0, 1, 1, 2, 3]",
-        "hint": "Use a loop or recursion to generate the sequence."
-    },
-    {
-        "id": 8,
-        "title": "Sum of Digits",
-        "description": "Write a function that calculates the sum of digits of a number.",
-        "example": "Input: sum_of_digits(123)\nOutput: 6",
-        "hint": "Use a loop to add each digit."
-    },
-    {
-        "id": 9,
-        "title": "Longest Word in Sentence",
-        "description": "Write a program to find the longest word in a sentence.",
-        "example": "Input: longest_word('Python is fun')\nOutput: 'Python'",
-        "hint": "Split the string and use len()."
-    },
-    {
-        "id": 10,
-        "title": "Find Missing Number",
-        "description": "Write a function to find the missing number in a list of integers from 1 to n.",
-        "example": "Input: find_missing([1, 2, 4, 5])\nOutput: 3",
-        "hint": "Sum all numbers from 1 to n and subtract the sum of the list."
-    },
-    {
-        "id": 11,
-        "title": "Matrix Transpose",
-        "description": "Write a function to compute the transpose of a matrix.",
-        "example": "Input: transpose([[1, 2], [3, 4]])\nOutput: [[1, 3], [2, 4]]",
-        "hint": "Use nested loops or list comprehension."
-    },
-    {
-        "id": 12,
-        "title": "Anagram Checker",
-        "description": "Write a function to check if two strings are anagrams.",
-        "example": "Input: is_anagram('listen', 'silent')\nOutput: True",
-        "hint": "Sort both strings and compare them."
-    },
-    {
-        "id": 13,
-        "title": "Unique Elements in List",
-        "description": "Write a program to find all unique elements in a list without using set.",
-        "example": "Input: unique_elements([1, 2, 2, 3, 4, 4])\nOutput: [1, 3]",
-        "hint": "Use a dictionary or count occurrences."
-    },
-    {
-        "id": 14,
-        "title": "Flatten Nested List",
-        "description": "Write a function to flatten a nested list.",
-        "example": "Input: flatten([[1, 2], [3, 4], [5]])\nOutput: [1, 2, 3, 4, 5]",
-        "hint": "Use recursion or a loop to unpack nested lists."
-    },
-    {
-        "id": 15,
-        "title": "Reverse Words in File",
-        "description": "Write a program to reverse the order of words in each line of a file.",
-        "example": "Input: File contains 'Hello World'\nOutput: 'World Hello'",
-        "hint": "Split and reverse words for each line."
-    },
-    {
-        "id": 16,
-        "title": "Word Frequency in File",
-        "description": "Write a program to count the frequency of each word in a file.",
-        "example": "Input: File contains 'Hello Hello World'\nOutput: {'Hello': 2, 'World': 1}",
-        "hint": "Use a dictionary to store word counts."
-    },
-    {
-        "id": 17,
-        "title": "Intersection of Two Lists",
-        "description": "Write a program to find the intersection of two lists.",
-        "example": "Input: intersection([1, 2, 3], [2, 3, 4])\nOutput: [2, 3]",
-        "hint": "Use loops or the set intersection method."
-    },
-    {
-        "id": 18,
-        "title": "Binary Search",
-        "description": "Implement a function to perform binary search on a sorted list.",
-        "example": "Input: binary_search([1, 2, 3, 4, 5], 4)\nOutput: True",
-        "hint": "Use divide and conquer."
-    },
-    {
-        "id": 19,
-        "title": "Sum of Pairs",
-        "description": "Write a function to find all pairs in a list that sum to a given number.",
-        "example": "Input: find_pairs([1, 2, 3, 4], 5)\nOutput: [(1, 4), (2, 3)]",
-        "hint": "Use nested loops or a hash map."
-    },
-    {
-        "id": 20,
-        "title": "Palindrome Number",
-        "description": "Write a program to check if a number is a palindrome.",
-        "example": "Input: is_palindrome(121)\nOutput: True",
-        "hint": "Convert the number to a string and check equality with its reverse."
-    },
-    {
-        "id": 21,
-        "title": "Rotate List",
-        "description": "Write a function to rotate a list by k positions to the right.",
-        "example": "Input: rotate([1, 2, 3, 4, 5], 2)\nOutput: [4, 5, 1, 2, 3]",
-        "hint": "Use slicing or shift elements in the list."
-    },
-    {
-        "id": 22,
-        "title": "Dot Product of Vectors",
-        "description": "Write a program to calculate the dot product of two vectors.",
-        "example": "Input: dot_product([1, 2, 3], [4, 5, 6])\nOutput: 32",
-        "hint": "Multiply corresponding elements and sum them up."
-    },
-    {
-        "id": 23,
-        "title": "GCD of Two Numbers",
-        "description": "Write a program to find the greatest common divisor (GCD) of two numbers.",
-        "example": "Input: gcd(12, 18)\nOutput: 6",
-        "hint": "Use the Euclidean algorithm."
-    },
-    {
-        "id": 24,
-        "title": "Merge Sorted Lists",
-        "description": "Write a function to merge two sorted lists into a single sorted list.",
-        "example": "Input: merge([1, 3, 5], [2, 4, 6])\nOutput: [1, 2, 3, 4, 5, 6]",
-        "hint": "Use two pointers or merge them and sort."
-    },
+[
+  {
+    "id": 1,
+    "title": "Find Prime Numbers",
+    "description": "Write a function to return a list of all prime numbers less than n.",
+    "example": "Input: prime_numbers(10)\nOutput: [2, 3, 5, 7]",
+    "hint": "Iterate through numbers from 2 to sqrt(n) and check divisibility."
+  },
+  {
+    "id": 2,
+    "title": "Reverse Words in String",
+    "description": "Write a function to reverse the words in a sentence.",
+    "example": "Input: reverse_words('Hello World')\nOutput: 'World Hello'",
+    "hint": "Split the string, reverse the list, and join."
+  },
+  {
+    "id": 3,
+    "title": "Count Vowels",
+    "description": "Write a function to count the number of vowels in a string.",
+    "example": "Input: count_vowels('hello')\nOutput: 2",
+    "hint": "Check for vowels 'a', 'e', 'i', 'o', 'u' in the string."
+  },
+  {
+    "id": 4,
+    "title": "Factorial Using Recursion",
+    "description": "Write a function to calculate the factorial of a number using recursion.",
+    "example": "Input: factorial(5)\nOutput: 120",
+    "hint": "Factorial of n is n * factorial(n-1)."
+  },
+  {
+    "id": 5,
+    "title": "Second Largest in List",
+    "description": "Write a function to find the second largest element in a list.",
+    "example": "Input: second_largest([3, 1, 4, 1, 5, 9])\nOutput: 5",
+    "hint": "Sort the list or iterate to find the second largest."
+  },
+  {
+    "id": 6,
+    "title": "Palindrome Checker",
+    "description": "Write a function to check if a string is a palindrome.",
+    "example": "Input: is_palindrome('radar')\nOutput: True",
+    "hint": "Compare the string with its reverse."
+  },
+  {
+    "id": 7,
+    "title": "Fibonacci Sequence",
+    "description": "Write a function to generate the first n Fibonacci numbers.",
+    "example": "Input: fibonacci(5)\nOutput: [0, 1, 1, 2, 3]",
+    "hint": "Use a loop or recursion to generate the sequence."
+  },
+  {
+    "id": 8,
+    "title": "Sum of Digits",
+    "description": "Write a function that calculates the sum of digits of a number.",
+    "example": "Input: sum_of_digits(123)\nOutput: 6",
+    "hint": "Use a loop to add each digit."
+  },
+  {
+    "id": 9,
+    "title": "Longest Word in Sentence",
+    "description": "Write a program to find the longest word in a sentence.",
+    "example": "Input: longest_word('Python is fun')\nOutput: 'Python'",
+    "hint": "Split the string and use len()."
+  },
+  {
+    "id": 10,
+    "title": "Find Missing Number",
+    "description": "Write a function to find the missing number in a list of integers from 1 to n.",
+    "example": "Input: find_missing([1, 2, 4, 5])\nOutput: 3",
+    "hint": "Sum all numbers from 1 to n and subtract the sum of the list."
+  },
+  {
+    "id": 11,
+    "title": "Matrix Transpose",
+    "description": "Write a function to compute the transpose of a matrix.",
+    "example": "Input: transpose([[1, 2], [3, 4]])\nOutput: [[1, 3], [2, 4]]",
+    "hint": "Use nested loops or list comprehension."
+  },
+  {
+    "id": 12,
+    "title": "Anagram Checker",
+    "description": "Write a function to check if two strings are anagrams.",
+    "example": "Input: is_anagram('listen', 'silent')\nOutput: True",
+    "hint": "Sort both strings and compare them."
+  },
+  {
+    "id": 13,
+    "title": "Unique Elements in List",
+    "description": "Write a program to find all unique elements in a list without using set.",
+    "example": "Input: unique_elements([1, 2, 2, 3, 4, 4])\nOutput: [1, 3]",
+    "hint": "Use a dictionary or count occurrences."
+  },
+  {
+    "id": 14,
+    "title": "Flatten Nested List",
+    "description": "Write a function to flatten a nested list.",
+    "example": "Input: flatten([[1, 2], [3, 4], [5]])\nOutput: [1, 2, 3, 4, 5]",
+    "hint": "Use recursion or a loop to unpack nested lists."
+  },
+  {
+    "id": 15,
+    "title": "Reverse Words in File",
+    "description": "Write a program to reverse the order of words in each line of a file.",
+    "example": "Input: File contains 'Hello World'\nOutput: 'World Hello'",
+    "hint": "Split and reverse words for each line."
+  },
+  {
+    "id": 16,
+    "title": "Word Frequency in File",
+    "description": "Write a program to count the frequency of each word in a file.",
+    "example": "Input: File contains 'Hello Hello World'\nOutput: {'Hello': 2, 'World': 1}",
+    "hint": "Use a dictionary to store word counts."
+  },
+  {
+    "id": 17,
+    "title": "Intersection of Two Lists",
+    "description": "Write a program to find the intersection of two lists.",
+    "example": "Input: intersection([1, 2, 3], [2, 3, 4])\nOutput: [2, 3]",
+    "hint": "Use loops or the set intersection method."
+  },
+  {
+    "id": 18,
+    "title": "Binary Search",
+    "description": "Implement a function to perform binary search on a sorted list.",
+    "example": "Input: binary_search([1, 2, 3, 4, 5], 4)\nOutput: True",
+    "hint": "Use divide and conquer."
+  },
+  {
+    "id": 19,
+    "title": "Sum of Pairs",
+    "description": "Write a function to find all pairs in a list that sum to a given number.",
+    "example": "Input: find_pairs([1, 2, 3, 4], 5)\nOutput: [(1, 4), (2, 3)]",
+    "hint": "Use nested loops or a hash map."
+  },
+  {
+    "id": 20,
+    "title": "Palindrome Number",
+    "description": "Write a program to check if a number is a palindrome.",
+    "example": "Input: is_palindrome(121)\nOutput: True",
+    "hint": "Convert the number to a string and check equality with its reverse."
+  },
+  {
+    "id": 21,
+    "title": "Rotate List",
+    "description": "Write a function to rotate a list by k positions to the right.",
+    "example": "Input: rotate([1, 2, 3, 4, 5], 2)\nOutput: [4, 5, 1, 2, 3]",
+    "hint": "Use slicing or shift elements in the list."
+  },
+  {
+    "id": 22,
+    "title": "Dot Product of Vectors",
+    "description": "Write a program to calculate the dot product of two vectors.",
+    "example": "Input: dot_product([1, 2, 3], [4, 5, 6])\nOutput: 32",
+    "hint": "Multiply corresponding elements and sum them up."
+  },
+  {
+    "id": 23,
+    "title": "GCD of Two Numbers",
+    "description": "Write a program to find the greatest common divisor (GCD) of two numbers.",
+    "example": "Input: gcd(12, 18)\nOutput: 6",
+    "hint": "Use the Euclidean algorithm."
+  },
+  {
+    "id": 24,
+    "title": "Merge Sorted Lists",
+    "description": "Write a function to merge two sorted lists into a single sorted list.",
+    "example": "Input: merge([1, 3, 5], [2, 4, 6])\nOutput: [1, 2, 3, 4, 5, 6]",
+    "hint": "Use two pointers or merge them and sort."
+  }
 ]

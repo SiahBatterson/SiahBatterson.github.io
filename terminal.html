@@ -66,18 +66,46 @@
 
     <script src="https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js"></script>
     <script>
+      let pyodide; // Store Pyodide instance globally
       let questions = [];
       let currentQuestionIndex = 0;
 
-      async function loadQuestions() {
-        // Load questions from JSON file
-        const response = await fetch("questions.json");
-        questions = await response.json();
-        displayQuestion(0);
+      // Initialize Pyodide once
+      async function initializePyodide() {
+        try {
+          pyodide = await loadPyodide();
+          console.log("Pyodide initialized");
+          await pyodide.runPython(`
+            import sys
+            from io import StringIO
+            sys.stdout = StringIO()  # Redirect stdout to capture print() outputs
+          `);
+        } catch (error) {
+          console.error("Failed to initialize Pyodide:", error);
+          alert(
+            "Pyodide failed to load. Please check your internet connection."
+          );
+        }
       }
 
+      // Load questions from a JSON file
+      async function loadQuestions() {
+        try {
+          const response = await fetch("questions.json");
+          questions = await response.json();
+          displayQuestion(0);
+        } catch (error) {
+          console.error("Failed to load questions:", error);
+          alert(
+            "Could not load questions. Ensure 'questions.json' is available."
+          );
+        }
+      }
+
+      // Display a question by index
       function displayQuestion(index) {
-        // Show the current question
+        if (!questions.length) return;
+
         const question = questions[index];
         document.getElementById("question-title").innerText = question.title;
         document.getElementById("question-description").innerText =
@@ -89,6 +117,7 @@
         document.getElementById("output").innerText = "Output will appear here"; // Reset output
       }
 
+      // Run Python code and display the result or errors
       async function runCode() {
         const code = document.getElementById("code").value;
         const outputElement = document.getElementById("output");
@@ -97,21 +126,26 @@
         outputElement.innerText = "Running...\n";
 
         try {
-          const pyodide = await loadPyodide();
           const result = await pyodide.runPythonAsync(code);
-          outputElement.innerText = result;
+          const stdout = await pyodide.runPython("sys.stdout.getvalue()"); // Capture print output
+          pyodide.runPython("sys.stdout.truncate(0); sys.stdout.seek(0)"); // Clear stdout buffer
+
+          outputElement.innerText = stdout || "No output";
         } catch (error) {
           outputElement.innerText = "Error: " + error.message;
         }
       }
 
+      // Display the next question
       function nextQuestion() {
-        // Go to the next question
+        if (questions.length === 0) return;
+
         currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
         displayQuestion(currentQuestionIndex);
       }
 
-      // Initialize the question loading
+      // Initialize Pyodide and load questions on page load
+      initializePyodide();
       loadQuestions();
     </script>
   </body>
