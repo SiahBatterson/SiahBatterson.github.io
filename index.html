@@ -3,105 +3,163 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Leaderboard</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Josiah Batterson | Data & Dev Portfolio</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: linear-gradient(to right, #1f1c2c, #928dab);
+        color: #fff;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+      header h1 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+      }
+      header p {
+        font-size: 1.25rem;
+        color: #ccc;
+      }
+      section {
+        max-width: 900px;
+        margin: 2rem auto;
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      }
+      h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #555;
+        padding-bottom: 0.5rem;
+      }
+      .project {
+        margin-bottom: 2rem;
+      }
+      .project h3 {
+        margin-bottom: 0.5rem;
+        color: #a2d2ff;
+      }
+      a {
+        color: #ffd6a5;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .btns {
+        text-align: center;
+        margin-top: 2rem;
+      }
+      .btns a {
+        background: #ffafcc;
+        color: #1f1c2c;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: bold;
+        margin: 0.5rem;
+        display: inline-block;
+      }
+      .btns a:hover {
+        background: #ffc8dd;
+      }
+    </style>
   </head>
   <body>
-    <nav>
-      <a href="backend/datamanagement.html">JavaScriptor</a
-      ><a href="javascript_game/leveleditor.html">JavaScriptor Level Editor</a>
-      <a href="studying.html">Study Guides</a>
-    </nav>
-    <h1>Welcome!</h1>
+    <header>
+      <h1>Josiah Batterson</h1>
+      <p>Data Scientist & Software Developer | Database Enthusiast</p>
+    </header>
 
-    <!-- Name Input Form -->
-    <details>
-      <summary>Play Game</summary>
-      <form id="nameForm">
-        <label for="playerName">Enter your name:</label>
-        <input type="text" id="playerName" required />
-        <button type="submit">Start Game</button>
-      </form>
-    </details>
+    <section>
+      <h2>✨ About Me</h2>
+      <p>
+        I build things with data. I’m a software contractor, researcher, and
+        future data scientist focused on real-world applications that make
+        workflows smoother and insights clearer.
+      </p>
+    </section>
 
-    <details>
-      <summary>Highscores</summary>
-      <h2>Leaderboard</h2>
-      <div id="leaderboard"></div>
-    </details>
+    <section>
+      <h2>📈 Projects</h2>
+      <div class="project">
+        <h3>
+          <a
+            href="https://github.com/SiahBatterson/NCC-Data-Staff-App"
+            target="_blank"
+            >NCC Staff Analytics Dashboard</a
+          >
+        </h3>
+        <p>
+          Internal dashboard using Dash and PostgreSQL to visualize staff
+          metrics and church-wide engagement.
+        </p>
+      </div>
+      <div class="project">
+        <h3>
+          <a
+            href="https://github.com/SiahBatterson/church-ml-dashboard"
+            target="_blank"
+            >Church ML Survey Tool</a
+          >
+        </h3>
+        <p>
+          Machine learning dashboard built in Plotly Dash to predict attendance
+          likelihood from church visitor surveys.
+        </p>
+      </div>
+      <div class="project">
+        <h3>
+          <a href="https://github.com/SiahBatterson" target="_blank"
+            >View All Repositories</a
+          >
+        </h3>
+        <p>Find everything else I’m working on and exploring on GitHub.</p>
+      </div>
+    </section>
 
-    <script>
-      document
-        .getElementById("nameForm")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault();
+    <section>
+      <h2>📅 Experience</h2>
+      <ul>
+        <li>
+          <strong
+            >Software & Data Contractor – National Community Church</strong
+          >
+          (2025–Present)
+        </li>
+        <li>
+          <strong>Research Assistant – Johns Hopkins University</strong>
+          (2023–2024)
+        </li>
+        <li><strong>Lead Barista – Wydown Cafe</strong> (2023–2024)</li>
+      </ul>
+    </section>
 
-          const playerName = document.getElementById("playerName").value.trim();
-          if (!playerName) return;
+    <section>
+      <h2>📚 Education</h2>
+      <p>
+        <strong>Southeastern University</strong> – B.S. General Studies,
+        emphasis in Data Science (2020–2025)
+      </p>
+    </section>
 
-          try {
-            // Fetch existing leaderboard data
-            const response = await fetch(
-              `./data.json?cache-bust=${new Date().getTime()}`,
-              { cache: "no-store" }
-            );
-            const data = await response.json();
-
-            // Check if the entered name already exists
-            const existingEntry = data.find(
-              (entry) => entry.name.toLowerCase() === playerName.toLowerCase()
-            );
-
-            if (existingEntry) {
-              const overwrite = confirm(
-                `The name "${playerName}" already exists. Do you want to continue and overwrite the existing data?`
-              );
-              if (!overwrite) {
-                alert("Please enter a different name.");
-                return;
-              }
-            }
-
-            // Save player name and redirect
-            localStorage.setItem("playerName", playerName);
-            window.location.href = "javascript_game/scriptgame.html";
-          } catch (error) {
-            console.error("Failed to fetch leaderboard data:", error);
-            alert(
-              "An error occurred while checking the leaderboard. Please try again."
-            );
-          }
-        });
-
-      async function fetchLeaderboard() {
-        try {
-          const response = await fetch(
-            `./data.json?cache-bust=${new Date().getTime()}`,
-            { cache: "no-store" }
-          );
-          const data = await response.json();
-
-          const sortedData = data
-            .sort((a, b) => b.coins * b.levels - a.coins * a.levels)
-            .slice(0, 5);
-
-          document.getElementById("leaderboard").innerHTML = sortedData
-            .map(
-              (entry, index) =>
-                `<p>${index + 1}. ${entry.name}: [ score: ${
-                  entry.coins + entry.levels
-                } ] ${entry.coins} coins, ${entry.levels} levels completed</p>`
-            )
-            .join("");
-        } catch (error) {
-          console.error("Failed to fetch leaderboard data:", error);
-          document.getElementById("leaderboard").innerHTML =
-            "<p>Failed to load leaderboard data.</p>";
-        }
-      }
-
-      window.onload = fetchLeaderboard;
-      setInterval(fetchLeaderboard, 5000);
-    </script>
+    <div class="btns">
+      <a href="mailto:siahbatterson@gmail.com">Contact Me</a>
+      <a href="/resume.pdf" target="_blank">Download Resume</a>
+    </div>
   </body>
 </html>
